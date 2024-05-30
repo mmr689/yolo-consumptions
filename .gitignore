@@ -1,3 +1,4 @@
 .venv/
 datasets/
 yolov8n.pt
+private_data.py
