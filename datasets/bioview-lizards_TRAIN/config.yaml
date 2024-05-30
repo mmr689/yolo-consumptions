@@ -1,0 +1,5 @@
+names:
+  0: Lizard
+path: /home/qcienmed/mmr689/yolo-consumptions/datasets/bioview-lizards_TRAIN
+train: dataset/train/images
+val: dataset/validation/images
