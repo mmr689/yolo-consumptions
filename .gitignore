@@ -1,6 +1,4 @@
 .venv/
-datasets/bioview/
-datasets/bioview-lizards_TRAIN/dataset/train/
-datasets/bioview-lizards_TRAIN/dataset/validation/
+datasets/
 yolov8n.pt
 private_data.py
