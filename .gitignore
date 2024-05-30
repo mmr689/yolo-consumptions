@@ -1,4 +1,4 @@
 .venv/
-datasets/
+datasets/bioview
 yolov8n.pt
 private_data.py
