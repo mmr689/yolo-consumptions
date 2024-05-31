@@ -3,3 +3,26 @@
 </p>
 
 <h1>YOLO: Energy consumption evaluation on Raspberry Pi and Coral platforms</h1>
+
+<h2>Devices</h2>
+<ul>
+  <li>RPi 1B</li>
+  <li>RPi 3B</li>
+  <li>RPi 4B</li>
+  <li>RPi 5</li>
+  <li>Coral USB Accelerator</li>
+  <li>Coral Dev Board</li>
+  <li>Coral Dev Board Mini</li>
+</ul>
+
+<h2>Tasks</h2>
+<ol>
+  <li>RPi FP32 Ultralytics</li>
+  <li>RPi FP32 TFLite</li>
+  <li>RPi INT8 TFLite</li>
+  <li>RPi + Coral USB Accelerator INT8 TFLite. ¿Se pued con FP32 ultra y tf?</li>
+  <li>Coral INT8 TFLite</li>
+</ol>
+<ul>
+  <li>¿COMPARO ENTRE SOLO TRABJAR UNA O VARIAS?</li>
+</ul>
