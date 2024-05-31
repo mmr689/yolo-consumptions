@@ -1,15 +1,17 @@
-"""
 
 """
-from periphery import GPIO
-from tflite_runtime.interpreter import Interpreter, load_delegate
+Código RPi modelos FP32 y FP16
+"""
+
+from tflite_runtime.interpreter import Interpreter
 import os
 import cv2
 import numpy as np
-import time
+import RPi.GPIO as GPIO
 
-gpio = GPIO("/dev/gpiochip2", 13, "out")
-gpio.write(False)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(17, GPIO.OUT)
+GPIO.output(17, GPIO.LOW)
 
 def calcular_solapamiento(rect1, rect2):
     x1_1, y1_1, x2_1, y2_1, confianza1 = rect1
@@ -45,10 +47,9 @@ def eliminar_solapamientos(lista_rectangulos):
     return rectangulos_eliminados
 
 
-
 project = 'COCO'
-model_name = 'yolov8n'
-model_name += '_full_integer_quant_edgetpu.tflite'
+model_name = 'yolov8n_float32'
+model_ext = '.tflite'
 
 
 
@@ -63,16 +64,15 @@ frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
 
 # Ruta al modelo TFLite
-gpio.write(True)
-model_path = os.path.join("models", project, model_name)
-interpreter = Interpreter(model_path,
-  experimental_delegates=[load_delegate('libedgetpu.so.1')])
+GPIO.output(17, GPIO.HIGH)
+model_path = os.path.join("models", project, model_name+model_ext)
+interpreter = Interpreter(model_path=model_path)
 interpreter.allocate_tensors()
 print(' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ')
 print('INTERPRETER')
 print(interpreter)
 print(' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ')
-gpio.write(False)
+GPIO.output(17, GPIO.LOW)
 
 # Get model details
 input_details = interpreter.get_input_details()
@@ -86,29 +86,28 @@ print(output_details)
 print(' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ')
 
 
-resized_img = cv2.resize(frame_rgb, (width, height))
-# Normalizar los valores de píxeles a INT8
-norm_img = resized_img.astype(np.int8)
+frame_resized = cv2.resize(frame_rgb, (width, height))
+# Normalizar los valores de píxeles a FLOAT32
+input_data = frame_resized.astype(np.float32) / 255.0
 # Agregar una dimensión para representar el lote (batch)
-batched_img = np.expand_dims(norm_img, axis=0)
+input_data = np.expand_dims(input_data, axis=0)
 print(' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ')
 print('input_data')
-print(batched_img)
+print(input_data)
 print(' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ')
 
 
 # Perform the actual detection by running the model with the image as input
-gpio.write(True)
-start_time = time.time()
-interpreter.set_tensor(input_details[0]['index'], batched_img)
+GPIO.output(17, GPIO.HIGH)
+interpreter.set_tensor(input_details[0]['index'],input_data)
 interpreter.invoke()
 output_data = interpreter.get_tensor(output_details[0]['index'])
-gpio.write(False)
-end_time = time.time()
 print(' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ')
 print('output_data')
 print(output_data)
 print(' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ')
+GPIO.output(17, GPIO.LOW)
+
 
 print(' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ')
 print('output_details[0][shape][2]')
@@ -119,37 +118,28 @@ print(' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ')
 bb_dict = {}
 for i in range(output_details[0]['shape'][2]):
     probs = output_data[0][4:, i].flatten() # CONF LABELS
-    if (np.max(probs)+128)/255 > 0.25:
+    if np.max(probs) > 0.25:
         x, y, w, h = output_data[0][:4, i].flatten() # COORDS
-        print(i, 'label:',np.max(probs), 'conf:',np.argmax(probs), (x, y, w, h))
-
-        x = (x+128)/255
-        y = (y+128)/255
-        w = (w+128)/255
-        h = (h+128)/255
-
-        label = np.argmax(probs)
-        confi = (np.max(probs)+128)/255
-        print(i, 'label:',label, 'conf:',confi, 'coords:',(x, y, w, h))
+        print(i, np.max(probs), np.argmax(probs), (x, y, w, h))
+        # print(i, np.max(probs), np.argmax(probs), (x, y, w, h))
 
         # Coordenadas del punto (ejemplo)
         x = int(x * frame.shape[1])
         y = int(y * frame.shape[0])
+
         # Dimensiones del rectángulo
         width = int(w * frame.shape[1])
         height = int(h * frame.shape[0])
-        print('Redim: ', (x, y, width, height), ' <> ', frame.shape)
 
         # Calcular las coordenadas del vértice superior izquierdo del rectángulo
         x_izquierda = x - width // 2
         y_arriba = y - height // 2
               
         # Guardar
-        if label not in bb_dict:
-            print('Añado ', np.argmax(probs), label)
-            bb_dict[label] = [(x_izquierda, y_arriba, x_izquierda + width, y_arriba + height, confi)]
+        if np.argmax(probs) not in bb_dict:
+            bb_dict[np.argmax(probs)] = [(x_izquierda, y_arriba, x_izquierda + width, y_arriba + height, np.max(probs))]
         else:
-            bb_dict[label].append((x_izquierda, y_arriba, x_izquierda + width, y_arriba + height, confi))
+            bb_dict[np.argmax(probs)].append((x_izquierda, y_arriba, x_izquierda + width, y_arriba + height, np.max(probs)))
 
 # Aplicamos NMS
 rectangulos_eliminados = []
@@ -174,16 +164,11 @@ for key,vals in bb_dict.items():
 
         x1, y1, x2, y2, conf = rectangulo
         print(key, x1, y1, x2, y2, conf)
-        cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+        cv2.rectangle(frame, (x1, y1), (x2, y2), color, 1)
         cv2.putText(frame, str(round(conf, 1)), (int(x1), int(y1 - 10)),
                     cv2.FONT_HERSHEY_SIMPLEX, 1.3, color, 1, cv2.LINE_AA)
 
 # Guardar la imagen resultante con rectángulos dibujados
-print(rectangulos_eliminados)
-output_path = f'results/{project}/{img_name}-{model_name}zzzz5.jpg'
+output_path = f'results/{project}/{img_name}-{model_name}.jpg'
 cv2.imwrite(output_path, frame)
-gpio.close()
-
-# Calcula el tiempo transcurrido
-elapsed_time = end_time - start_time
-print("Tiempo transcurrido:", elapsed_time, "segundos")
+GPIO.cleanup()
