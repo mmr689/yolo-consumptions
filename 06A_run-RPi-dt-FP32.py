@@ -5,7 +5,7 @@ from ultralytics import YOLO
 
 model = YOLO('datasets/bioview-lizards_TRAIN/run/train/weights/best.pt')
 
-img_path = 'datasets/bioview-lizards_TRAIN/dataset/validation/images/img_20230729_223004.jpg'
+img_path = 'test/images/img_20221224_023004.jpg'
 img = cv2.imread(img_path)
 # img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 

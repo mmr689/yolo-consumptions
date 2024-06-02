@@ -1,4 +1,6 @@
 .venv/
+.rpi_ultralytics_venv/
+
 datasets/
 yolov8n.pt
 private_data.py
