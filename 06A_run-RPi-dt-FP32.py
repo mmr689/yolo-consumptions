@@ -1,21 +1,18 @@
 import cv2
-# import matplotlib.pyplot as plt
 
 from ultralytics import YOLO
 
-model = YOLO('datasets/bioview-lizards_TRAIN/run/train/weights/best.pt')
+model = YOLO('run/best.pt')
 
-img_path = 'test/images/img_20221224_023004.jpg'
-img_path = 'datasets/bioview-lizards_TRAIN/dataset/validation/images/img_20230729_223004.jpg'
+img_path = 'run/test/images/img_20230101_191503.jpg'
 img = cv2.imread(img_path)
-# img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
 results = model.predict(img_path)[0]
 
 for result in results.boxes.data.tolist():
     x1, y1, x2, y2, score, class_id = result
 
-    if score >= 0.5:
+    if score >= 0:
         cv2.rectangle(img,
                       (int(x1), int(y1)), (int(x2), int(y2)),
                       (0, 255, 0), 3)
