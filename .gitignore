@@ -1,6 +1,8 @@
 .venv/
 .rpi_ultralytics_venv/
 
+__pycache__/
+
 datasets/
 
 yolov8n.pt
