@@ -5,6 +5,11 @@ import time
 import json
 import logging
 from ultralytics import YOLO
+import rpi.GPIO as GPIO
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(17, GPIO.OUT)
+GPIO.output(17, GPIO.LOW)
 
 def setup_logging( log_path, log_to_console=True,):
     """Setup logging configuration with an option to log to console."""
@@ -23,9 +28,11 @@ def setup_logging( log_path, log_to_console=True,):
 
 def load_model(model_path):
     """Load and return the YOLO model."""
+    GPIO.output(17, GPIO.HIGH)
     start_time = time.time()
     model = YOLO(model_path)
     end_time = time.time()
+    GPIO.output(17, GPIO.LOW)
     logging.info(f"Model loaded in {end_time - start_time} seconds.")
     return model, end_time - start_time
 
