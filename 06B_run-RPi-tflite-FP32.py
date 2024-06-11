@@ -111,7 +111,7 @@ for filename in os.listdir(directory):
             bb_dict = {}
             for i in range(output_details[0]['shape'][2]):
                 probs = output_data[0][4:, i].flatten() # CONF LABELS
-                if np.max(probs) > 0.25:
+                if np.max(probs) > 0.5:
                     x, y, w, h = output_data[0][:4, i].flatten() # COORDS
                     print(i, np.max(probs), np.argmax(probs), (x, y, w, h))
                     # print(i, np.max(probs), np.argmax(probs), (x, y, w, h))
