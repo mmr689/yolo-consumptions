@@ -111,28 +111,37 @@ for filename in os.listdir(directory):
             bb_dict = {}
             for i in range(output_details[0]['shape'][2]):
                 probs = output_data[0][4:, i].flatten() # CONF LABELS
-                if np.max(probs) > 0.25:
+                if (np.max(probs)+128)/255 > 0.5:
                     x, y, w, h = output_data[0][:4, i].flatten() # COORDS
-                    print(i, np.max(probs), np.argmax(probs), (x, y, w, h))
-                    # print(i, np.max(probs), np.argmax(probs), (x, y, w, h))
+                    print(i, 'label:',np.max(probs), 'conf:',np.argmax(probs), (x, y, w, h))
+
+                    x = (x+128)/255
+                    y = (y+128)/255
+                    w = (w+128)/255
+                    h = (h+128)/255
+
+                    label = np.argmax(probs)
+                    confi = (np.max(probs)+128)/255
+                    print(i, 'label:',label, 'conf:',confi, 'coords:',(x, y, w, h))
 
                     # Coordenadas del punto (ejemplo)
                     x = int(x * frame.shape[1])
                     y = int(y * frame.shape[0])
-
                     # Dimensiones del rectángulo
                     width = int(w * frame.shape[1])
                     height = int(h * frame.shape[0])
+                    print('Redim: ', (x, y, width, height), ' <> ', frame.shape)
 
                     # Calcular las coordenadas del vértice superior izquierdo del rectángulo
                     x_izquierda = x - width // 2
                     y_arriba = y - height // 2
                         
                     # Guardar
-                    if np.argmax(probs) not in bb_dict:
-                        bb_dict[np.argmax(probs)] = [(x_izquierda, y_arriba, x_izquierda + width, y_arriba + height, np.max(probs))]
+                    if label not in bb_dict:
+                        print('Añado ', np.argmax(probs), label)
+                        bb_dict[label] = [(x_izquierda, y_arriba, x_izquierda + width, y_arriba + height, confi)]
                     else:
-                        bb_dict[np.argmax(probs)].append((x_izquierda, y_arriba, x_izquierda + width, y_arriba + height, np.max(probs)))
+                        bb_dict[label].append((x_izquierda, y_arriba, x_izquierda + width, y_arriba + height, confi))
 
             # Aplicamos NMS
             rectangulos_eliminados = []
