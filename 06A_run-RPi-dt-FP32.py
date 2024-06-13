@@ -48,15 +48,14 @@ def process_images(model, directory, bb_conf=0.5):
             results = model.predict(img_path)[0]
             end_time = time.time()
             GPIO.output(17, GPIO.LOW)
-
             image_timings.append({filename: end_time - start_time})
 
             GPIO.output(17, GPIO.HIGH)
             for result in results.boxes.data.tolist():
-                x1, y1, x2, y2, score, _ = result
-                if score >= bb_conf:
+                x1, y1, x2, y2, conf, _ = result
+                if conf >= bb_conf:
                     cv2.rectangle(img, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 3)
-                    cv2.putText(img, str(round(score,1)), (int(x1), int(y1)), cv2.FONT_HERSHEY_SIMPLEX, 3, (0, 255, 0), 3, cv2.LINE_AA)
+                    cv2.putText(img, str(round(conf,1)), (int(x1), int(y1)), cv2.FONT_HERSHEY_SIMPLEX, 3, (0, 255, 0), 3, cv2.LINE_AA)
             GPIO.output(17, GPIO.LOW)
 
             save_path = os.path.join('results/yolov8_FP32_pt', filename)
