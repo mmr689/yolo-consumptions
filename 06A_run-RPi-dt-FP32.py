@@ -5,11 +5,7 @@ import time
 import json
 import logging
 from ultralytics import YOLO
-import rpi.GPIO as GPIO
-
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(17, GPIO.OUT)
-GPIO.output(17, GPIO.LOW)
+import RPi.GPIO as GPIO
 
 def setup_logging( log_path, log_to_console=True,):
     """Setup logging configuration with an option to log to console."""
@@ -36,7 +32,7 @@ def load_model(model_path):
     logging.info(f"Model loaded in {end_time - start_time} seconds.")
     return model, end_time - start_time
 
-def process_images(model, directory):
+def process_images(model, directory, bb_conf=0.5):
     """Process images and return timings."""
     image_timings = []
     for filename in os.listdir(directory):
@@ -47,17 +43,21 @@ def process_images(model, directory):
                 logging.warning(f"Failed to load image {filename}")
                 continue
 
+            GPIO.output(17, GPIO.HIGH)
             start_time = time.time()
             results = model.predict(img_path)[0]
             end_time = time.time()
+            GPIO.output(17, GPIO.LOW)
 
             image_timings.append({filename: end_time - start_time})
 
+            GPIO.output(17, GPIO.HIGH)
             for result in results.boxes.data.tolist():
-                x1, y1, x2, y2, score, class_id = result
-                if score >= 0.5:
+                x1, y1, x2, y2, score, _ = result
+                if score >= bb_conf:
                     cv2.rectangle(img, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 3)
                     cv2.putText(img, str(round(score,1)), (int(x1), int(y1)), cv2.FONT_HERSHEY_SIMPLEX, 3, (0, 255, 0), 3, cv2.LINE_AA)
+            GPIO.output(17, GPIO.LOW)
 
             save_path = os.path.join('results/yolov8_FP32_pt', filename)
             cv2.imwrite(save_path, img)
@@ -65,12 +65,18 @@ def process_images(model, directory):
     return image_timings
 
 def main():
+    # Creamos un pico con los GPIOs para observarlo en el osciloscopio
+    GPIO.setup(17, GPIO.OUT)
+    GPIO.output(17, GPIO.LOW)
+    
+    # Configuramos logs
     setup_logging(log_path='results/yolov8_FP32_pt/log.txt', log_to_console=False)
+    
+    # Cargamos el modelo y predecimos
     start_time = time.time()
     model, model_load_time = load_model('final-resources/models/yolov8/best.pt')
-    image_timings = process_images(model, 'final-resources/data/images')
+    image_timings = process_images(model, 'final-resources/data/images', 0.5)
     total_time = time.time() - start_time
-
     timings = {
         "model_load_time": model_load_time,
         "image_prediction_times": image_timings,
@@ -85,5 +91,12 @@ def main():
         json.dump(timings, file, indent=4)
     logging.info("Execution times and logs have been saved.")
 
+    # Creamos un pico con los GPIOs para observarlo en el osciloscopio
+    GPIO.setup(17, GPIO.OUT)
+    GPIO.output(17, GPIO.LOW)
+
 if __name__ == "__main__":
+    GPIO.setmode(GPIO.BCM)
+    GPIO.cleanup()
     main()
+    GPIO.cleanup()
