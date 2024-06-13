@@ -26,3 +26,8 @@
 <ul>
   <li>¿COMPARO ENTRE SOLO TRABJAR UNA O VARIAS?</li>
 </ul>
+
+
+
+- https://github.com/feranick/libedgetpu/releases
+  - https://github.com/feranick/libedgetpu/releases/download/v16.0TF2.15.1-1/libedgetpu1-std_16.0tf2.15.1-1.bookworm_arm64.deb

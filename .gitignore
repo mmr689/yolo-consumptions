@@ -1,6 +1,7 @@
 .venv/
 .rpi_ultralytics_venv/
 .rpi_tensorflow_venv/
+.rpi_usbCoral_venv/
 
 __pycache__/
 

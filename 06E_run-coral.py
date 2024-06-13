@@ -1,5 +1,5 @@
 """
-
+Parece el código antiguo de CORAL
 """
 from periphery import GPIO
 from tflite_runtime.interpreter import Interpreter, load_delegate
