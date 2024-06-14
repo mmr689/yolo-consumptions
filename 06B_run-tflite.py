@@ -7,6 +7,7 @@ and saving timing data for analysis. GPIO pins are used to signal the start and 
 which can be monitored with an oscilloscope for debugging or performance measurement.
 """
 
+import argparse
 from tflite_runtime.interpreter import Interpreter
 import os
 import time
@@ -213,7 +214,6 @@ def main(precision, device):
         precision (str): Model precision. Can be FP32 or INT8.
         device (str): Device we are going to use. Can be RPi, EdgeTPU, USB-EdgeTPU
     """
-    
     # Starting oscilloscope flag
     GPIO.setup(17, GPIO.OUT)
     GPIO.output(17, GPIO.LOW)
@@ -234,9 +234,10 @@ def main(precision, device):
             work_path += '_DevBoard'
         model = 'best_full_integer_quant_edgetpu.tflite'
     results_path = f'results/{work_path}'
+    
     if not os.path.exists(results_path):
-        print(f"Directory {results_path} does not exist. Please create it to proceed.")
-
+        os.makedirs(results_path)
+        
     setup_logging(log_path=f'{results_path}/log.txt', log_to_console=False)
     logging.info(f"User device: {device}. User precision: {precision}")
     
@@ -252,18 +253,23 @@ def main(precision, device):
     }
 
     # Save data
-    if not os.path.exists(results_path):
-        os.makedirs(results_path)
     with open(os.path.join(results_path, 'times.json'), 'w') as file:
         json.dump(timings, file, indent=4)
     logging.info(f"END script in {total_time} seconds.")
 
     # Ending oscilloscope flag
-    GPIO.setup(17, GPIO.OUT)
     GPIO.output(17, GPIO.LOW)
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Run YOLO Object Detection with specified precision and device.')
+    parser.add_argument('precision', type=str, choices=['FP32', 'INT8'],
+                        help='Precision of the model (FP32 or INT8)')
+    parser.add_argument('device', type=str, help='Device to run the detection on (RPi, EdgeTPU, USB-EdgeTPU)')
+    
     GPIO.setmode(GPIO.BCM) # Setup GPIO mode
-    GPIO.cleanup() # Ensure GPIOs are ok
-    main('INT8', 'USB-EdgeTPU')
-    GPIO.cleanup() # Clean GPIOs
+    GPIO.cleanup() # Ensure GPIOs are cleaned before starting
+
+    args = parser.parse_args()
+    main(args.precision, args.device)
+
+    GPIO.cleanup() # Clean GPIOs after running

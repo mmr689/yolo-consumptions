@@ -1,12 +1,12 @@
-2024-06-14 11:26:16,878 - INFO - Model loaded in 0.1463785171508789 seconds.
-2024-06-14 11:26:22,005 - INFO - Processed img_20230109_050005.jpg and saved to results/yolov8_FP32_pt/img_20230109_050005.jpg
-2024-06-14 11:26:24,631 - INFO - Processed img_20230103_234504.jpg and saved to results/yolov8_FP32_pt/img_20230103_234504.jpg
-2024-06-14 11:26:27,108 - INFO - Processed img_20230109_054503.jpg and saved to results/yolov8_FP32_pt/img_20230109_054503.jpg
-2024-06-14 11:26:29,703 - INFO - Processed img_20230104_200004.jpg and saved to results/yolov8_FP32_pt/img_20230104_200004.jpg
-2024-06-14 11:26:32,148 - INFO - Processed img_20221228_213004.jpg and saved to results/yolov8_FP32_pt/img_20221228_213004.jpg
-2024-06-14 11:26:34,523 - INFO - Processed img_20221225_024503.jpg and saved to results/yolov8_FP32_pt/img_20221225_024503.jpg
-2024-06-14 11:26:36,861 - INFO - Processed img_20230104_021503.jpg and saved to results/yolov8_FP32_pt/img_20230104_021503.jpg
-2024-06-14 11:26:39,258 - INFO - Processed img_20230107_184503.jpg and saved to results/yolov8_FP32_pt/img_20230107_184503.jpg
-2024-06-14 11:26:42,093 - INFO - Processed img_20230106_200005.jpg and saved to results/yolov8_FP32_pt/img_20230106_200005.jpg
-2024-06-14 11:26:44,799 - INFO - Processed img_20230108_234503.jpg and saved to results/yolov8_FP32_pt/img_20230108_234503.jpg
-2024-06-14 11:26:44,805 - INFO - END script in 28.072829484939575 seconds.
+2024-06-14 13:08:23,462 - INFO - Model loaded in 0.14642763137817383 seconds.
+2024-06-14 13:08:28,494 - INFO - Processed img_20230109_050005.jpg and saved to results/yolov8_FP32_pt_RPi/img_20230109_050005.jpg
+2024-06-14 13:08:30,930 - INFO - Processed img_20230103_234504.jpg and saved to results/yolov8_FP32_pt_RPi/img_20230103_234504.jpg
+2024-06-14 13:08:33,260 - INFO - Processed img_20230109_054503.jpg and saved to results/yolov8_FP32_pt_RPi/img_20230109_054503.jpg
+2024-06-14 13:08:35,715 - INFO - Processed img_20230104_200004.jpg and saved to results/yolov8_FP32_pt_RPi/img_20230104_200004.jpg
+2024-06-14 13:08:38,078 - INFO - Processed img_20221228_213004.jpg and saved to results/yolov8_FP32_pt_RPi/img_20221228_213004.jpg
+2024-06-14 13:08:40,445 - INFO - Processed img_20221225_024503.jpg and saved to results/yolov8_FP32_pt_RPi/img_20221225_024503.jpg
+2024-06-14 13:08:42,750 - INFO - Processed img_20230104_021503.jpg and saved to results/yolov8_FP32_pt_RPi/img_20230104_021503.jpg
+2024-06-14 13:08:45,078 - INFO - Processed img_20230107_184503.jpg and saved to results/yolov8_FP32_pt_RPi/img_20230107_184503.jpg
+2024-06-14 13:08:47,413 - INFO - Processed img_20230106_200005.jpg and saved to results/yolov8_FP32_pt_RPi/img_20230106_200005.jpg
+2024-06-14 13:08:49,742 - INFO - Processed img_20230108_234503.jpg and saved to results/yolov8_FP32_pt_RPi/img_20230108_234503.jpg
+2024-06-14 13:08:49,748 - INFO - END script in 26.431186199188232 seconds.

@@ -1,13 +1,13 @@
-2024-06-14 12:36:08,614 - INFO - User device: USB-EdgeTPU. User precision: INT8
-2024-06-14 12:36:11,294 - INFO - Model loaded in 2.6792736053466797 seconds.
-2024-06-14 12:36:12,375 - INFO - Processed img_20230109_050005.jpg and saved to results/yolov8_INT8_TFLite/img_20230109_050005.jpg
-2024-06-14 12:36:13,467 - INFO - Processed img_20230103_234504.jpg and saved to results/yolov8_INT8_TFLite/img_20230103_234504.jpg
-2024-06-14 12:36:14,558 - INFO - Processed img_20230109_054503.jpg and saved to results/yolov8_INT8_TFLite/img_20230109_054503.jpg
-2024-06-14 12:36:15,635 - INFO - Processed img_20230104_200004.jpg and saved to results/yolov8_INT8_TFLite/img_20230104_200004.jpg
-2024-06-14 12:36:16,729 - INFO - Processed img_20221228_213004.jpg and saved to results/yolov8_INT8_TFLite/img_20221228_213004.jpg
-2024-06-14 12:36:17,832 - INFO - Processed img_20221225_024503.jpg and saved to results/yolov8_INT8_TFLite/img_20221225_024503.jpg
-2024-06-14 12:36:18,909 - INFO - Processed img_20230104_021503.jpg and saved to results/yolov8_INT8_TFLite/img_20230104_021503.jpg
-2024-06-14 12:36:19,995 - INFO - Processed img_20230107_184503.jpg and saved to results/yolov8_INT8_TFLite/img_20230107_184503.jpg
-2024-06-14 12:36:21,080 - INFO - Processed img_20230106_200005.jpg and saved to results/yolov8_INT8_TFLite/img_20230106_200005.jpg
-2024-06-14 12:36:22,161 - INFO - Processed img_20230108_234503.jpg and saved to results/yolov8_INT8_TFLite/img_20230108_234503.jpg
-2024-06-14 12:36:22,173 - INFO - END script in 13.557087898254395 seconds.
+2024-06-14 13:12:03,815 - INFO - User device: RPi. User precision: INT8
+2024-06-14 13:12:03,820 - INFO - Model loaded in 0.003512144088745117 seconds.
+2024-06-14 13:12:05,435 - INFO - Processed img_20230109_050005.jpg and saved to results/yolov8_INT8_TFLite_RPi/img_20230109_050005.jpg
+2024-06-14 13:12:07,009 - INFO - Processed img_20230103_234504.jpg and saved to results/yolov8_INT8_TFLite_RPi/img_20230103_234504.jpg
+2024-06-14 13:12:08,585 - INFO - Processed img_20230109_054503.jpg and saved to results/yolov8_INT8_TFLite_RPi/img_20230109_054503.jpg
+2024-06-14 13:12:10,188 - INFO - Processed img_20230104_200004.jpg and saved to results/yolov8_INT8_TFLite_RPi/img_20230104_200004.jpg
+2024-06-14 13:12:11,769 - INFO - Processed img_20221228_213004.jpg and saved to results/yolov8_INT8_TFLite_RPi/img_20221228_213004.jpg
+2024-06-14 13:12:13,346 - INFO - Processed img_20221225_024503.jpg and saved to results/yolov8_INT8_TFLite_RPi/img_20221225_024503.jpg
+2024-06-14 13:12:14,939 - INFO - Processed img_20230104_021503.jpg and saved to results/yolov8_INT8_TFLite_RPi/img_20230104_021503.jpg
+2024-06-14 13:12:16,515 - INFO - Processed img_20230107_184503.jpg and saved to results/yolov8_INT8_TFLite_RPi/img_20230107_184503.jpg
+2024-06-14 13:12:18,085 - INFO - Processed img_20230106_200005.jpg and saved to results/yolov8_INT8_TFLite_RPi/img_20230106_200005.jpg
+2024-06-14 13:12:19,663 - INFO - Processed img_20230108_234503.jpg and saved to results/yolov8_INT8_TFLite_RPi/img_20230108_234503.jpg
+2024-06-14 13:12:19,674 - INFO - END script in 15.857283592224121 seconds.
