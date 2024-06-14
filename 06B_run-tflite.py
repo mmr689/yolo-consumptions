@@ -15,7 +15,7 @@ import json
 import logging
 import cv2
 import numpy as np
-import RPi.GPIO as GPIO
+
 
 def calculate_overlap(rect1, rect2):
     """
@@ -85,7 +85,7 @@ def setup_logging(log_path, log_to_console=True):
         handlers=handlers
     )
 
-def load_model(model_path, device):
+def load_model(model_path, device, gpio):
     """
     Load a YOLO model from a specified path and measure load time.
     
@@ -95,7 +95,10 @@ def load_model(model_path, device):
     Returns:
         tuple: (model, load_time) where model is the loaded YOLO model, and load_time is the time taken to load the model in seconds.
     """
-    GPIO.output(17, GPIO.HIGH) # Signal GPIO pin before loading model.
+    if gpio is None:
+        GPIO.output(17, GPIO.HIGH) # Signal GPIO pin before loading model.
+    else:
+        gpio.write(True)
     start_time = time.time()
     if device == 'RPi':
         model = Interpreter(model_path=model_path)
@@ -109,11 +112,14 @@ def load_model(model_path, device):
                 experimental_delegates=[load_delegate('libedgetpu.so.1', options={'device': 'usb'})])
     model.allocate_tensors()
     end_time = time.time()
-    GPIO.output(17, GPIO.LOW) # Signal GPIO pin after loading model.
+    if gpio is None:
+        GPIO.output(17, GPIO.LOW) # Signal GPIO pin after loading model.
+    else:
+        gpio.write(False)
     logging.info(f"Model loaded in {end_time - start_time} seconds.")
     return model, end_time - start_time
 
-def process_images(model, imgs_path, results_path, precision, bb_conf=0.5):
+def process_images(model, imgs_path, results_path, precision, gpio, bb_conf=0.5):
     """
     Process images for object detection and measure processing time.
 
@@ -153,13 +159,19 @@ def process_images(model, imgs_path, results_path, precision, bb_conf=0.5):
             img_batch = np.expand_dims(img_norm, axis=0)
             
             # Predict
-            GPIO.output(17, GPIO.HIGH) # Signal GPIO pin before prediction.
+            if gpio is None:
+                GPIO.output(17, GPIO.HIGH) # Signal GPIO pin before prediction.
+            else:
+                gpio.write(True)
             start_time = time.time()
             model.set_tensor(input_details[0]['index'], img_batch)
             model.invoke()
             results = model.get_tensor(output_details[0]['index'])
             end_time = time.time()
-            GPIO.output(17, GPIO.LOW) # Signal GPIO pin after prediction.
+            if gpio is None:
+                GPIO.output(17, GPIO.LOW) # Signal GPIO pin after prediction.
+            else:
+                gpio.write(False)
             image_timings.append({filename: end_time - start_time})
             # Obtain all bounding boxes and confidences
             bb_dict = {}
@@ -206,7 +218,7 @@ def process_images(model, imgs_path, results_path, precision, bb_conf=0.5):
 
     return image_timings
 
-def main(precision, device):
+def main(precision, device, gpio):
     """
     Main function to initialize logging, load the model, and process images.
     
@@ -215,8 +227,12 @@ def main(precision, device):
         device (str): Device we are going to use. Can be RPi, EdgeTPU, USB-EdgeTPU
     """
     # Starting oscilloscope flag
-    GPIO.setup(17, GPIO.OUT)
-    GPIO.output(17, GPIO.LOW)
+    if gpio is None:
+        GPIO.setup(17, GPIO.OUT)
+        GPIO.output(17, GPIO.LOW)
+    else:
+        gpio.write(True)
+        gpio.write(False)
     
     work_path = f'yolov8_{precision}_TFLite'
     if precision == 'FP32':
@@ -243,8 +259,8 @@ def main(precision, device):
     
     # Start detection process
     start_time = time.time()
-    model, model_load_time = load_model(f'final-resources/models/yolov8/{model}', device)
-    image_timings = process_images(model, 'final-resources/data/images', results_path, precision, 0.5)
+    model, model_load_time = load_model(f'final-resources/models/yolov8/{model}', device, gpio)
+    image_timings = process_images(model, 'final-resources/data/images', results_path, precision, gpio, 0.5)
     total_time = time.time() - start_time
     timings = {
         "model_load_time": model_load_time,
@@ -258,7 +274,10 @@ def main(precision, device):
     logging.info(f"END script in {total_time} seconds.")
 
     # Ending oscilloscope flag
-    GPIO.output(17, GPIO.LOW)
+    if gpio is None:
+        GPIO.output(17, GPIO.LOW)
+    else:
+        gpio.write(False)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run YOLO Object Detection with specified precision and device.')
@@ -266,10 +285,20 @@ if __name__ == "__main__":
                         help='Precision of the model (FP32 or INT8)')
     parser.add_argument('device', type=str, help='Device to run the detection on (RPi, EdgeTPU, USB-EdgeTPU)')
     
-    GPIO.setmode(GPIO.BCM) # Setup GPIO mode
-    GPIO.cleanup() # Ensure GPIOs are cleaned before starting
-
     args = parser.parse_args()
-    main(args.precision, args.device)
+    
+    if args.device == 'RPi' or args.device == 'USB-EdgeTPU':
+        import RPi.GPIO as GPIO
+        GPIO.setmode(GPIO.BCM) # Setup GPIO mode
+        GPIO.cleanup() # Ensure GPIOs are cleaned before starting
+        gpio = None
+        
+    elif args.device == 'EdgeTPU':
+        from periphery import GPIO
+        gpio = GPIO("/dev/gpiochip2", 13, "out")
+        gpio.close()
+        
+
+    main(args.precision, args.device, gpio)
 
     GPIO.cleanup() # Clean GPIOs after running

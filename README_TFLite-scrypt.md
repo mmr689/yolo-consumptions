@@ -49,7 +49,7 @@ Where:
 
 Example:
 ```bash
-python3 detect_objects.py FP32 RPi
+python3 06B_run-tflite.py FP32 RPi
 ```
 
 ## Configuration
