@@ -1,174 +1,237 @@
-
 """
-Código RPi basado en 06C y adaptado para usa con USB Coral 
+Object Detection System using YOLO TFLite INT8 model and Raspberry Pi + USB Coral Dev Board
+
+This script configures a Raspberry Pi to perform object detection on a set of images using the YOLO (You Only Look Once) TFLite FP32 model.
+It includes functions for setting up logging, loading the YOLO TFLite model, processing images to detect objects,
+and saving timing data for analysis. GPIO pins are used to signal the start and end of significant operations,
+which can be monitored with an oscilloscope for debugging or performance measurement.
 """
 
 from tflite_runtime.interpreter import Interpreter, load_delegate
 import os
+import time
+import json
+import logging
 import cv2
 import numpy as np
 import RPi.GPIO as GPIO
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(17, GPIO.OUT)
-GPIO.output(17, GPIO.LOW)
+def calculate_overlap(rect1, rect2):
+    """
+    Calculate the overlap between two rectangles.
+    
+    Args:
+        rect1 (tuple): (x1, y1, x2, y2, confidence) for rectangle 1.
+        rect2 (tuple): (x1, y1, x2, y2, confidence) for rectangle 2.
 
-def calcular_solapamiento(rect1, rect2):
-    x1_1, y1_1, x2_1, y2_1, confianza1 = rect1
-    x1_2, y1_2, x2_2, y2_2, confianza2 = rect2
+    Returns:
+        float: The fraction of the overlap area relative to the smallest rectangle area.
+    """
+    # Calculate areas of the rectangles
+    area_rect1 = (rect1[2] - rect1[0]) * (rect1[3] - rect1[1])
+    area_rect2 = (rect2[2] - rect2[0]) * (rect2[3] - rect2[1])
 
-    # Calcular áreas de los rectángulos
-    area_rect1 = (x2_1 - x1_1) * (y2_1 - y1_1)
-    area_rect2 = (x2_2 - x1_2) * (y2_2 - y1_2)
+    # Calculate intersection
+    intersection_x = max(0, min(rect1[2], rect2[2]) - max(rect1[0], rect2[0]))
+    intersection_y = max(0, min(rect1[3], rect2[3]) - max(rect1[1], rect2[1]))
+    area_intersection = intersection_x * intersection_y
 
-    # Calcular intersección
-    interseccion_x = max(0, min(x2_1, x2_2) - max(x1_1, x1_2))
-    interseccion_y = max(0, min(y2_1, y2_2) - max(y1_1, y1_2))
-    area_interseccion = interseccion_x * interseccion_y
+    # Calculate overlap as a fraction of the smaller area
+    overlap = area_intersection / min(area_rect1, area_rect2)
+    return overlap
 
-    # Calcular solapamiento como fracción del área más pequeña
-    solapamiento = area_interseccion / min(area_rect1, area_rect2)
+def remove_overlaps(rectangles):
+    """
+    Remove overlapping rectangles based on a high overlap threshold.
 
-    return solapamiento
+    Args:
+        rectangles (list): List of rectangle tuples (x1, y1, x2, y2, confidence).
 
-def eliminar_solapamientos(lista_rectangulos):
-    rectangulos_eliminados = []
+    Returns:
+        list: List of rectangles that were removed due to overlaps.
+    """
+    eliminated_rectangles = []
     i = 0
-    while i < len(lista_rectangulos):
+    while i < len(rectangles):
         j = i + 1
-        while j < len(lista_rectangulos):
-            if calcular_solapamiento(lista_rectangulos[i], lista_rectangulos[j]) > 0.9:
-                # Almacenar en la lista de rectángulos eliminados
-                rectangulos_eliminados.append(lista_rectangulos[j])
-                del lista_rectangulos[j]
+        while j < len(rectangles):
+            if calculate_overlap(rectangles[i], rectangles[j]) > 0.9:
+                eliminated_rectangles.append(rectangles[j])
+                del rectangles[j]
             else:
                 j += 1
         i += 1
-    return rectangulos_eliminados
+    return eliminated_rectangles
 
+def setup_logging(log_path, log_to_console=True):
+    """
+    Set up logging configuration.
 
-directory = 'final-resources/data/images'
-for filename in os.listdir(directory):
-        if filename.endswith(('.png', '.jpg', '.jpeg')):
-            img_path = os.path.join(directory, filename)
-            frame = cv2.imread(img_path)
-            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    Args:
+        log_path (str): Path to save the log file.
+        log_to_console (bool): If True, logs will also be printed to the console.
+    """
+    if not os.path.exists(os.path.dirname(log_path)):
+        os.makedirs(os.path.dirname(log_path))
+    
+    handlers = [logging.FileHandler(log_path, mode='w')]
+    if log_to_console:
+        handlers.append(logging.StreamHandler())
+    
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=handlers
+    )
 
+def load_model(model_path):
+    """
+    Load a YOLO model from a specified path and measure load time.
+    
+    Args:
+        model_path (str): File path of the YOLO model.
 
-
-            # Ruta al modelo TFLite
-            GPIO.output(17, GPIO.HIGH)
-            model_path = os.path.join('final-resources/models/yolov8/','best_full_integer_quant_edgetpu.tflite')
-            interpreter = Interpreter(model_path,
+    Returns:
+        tuple: (model, load_time) where model is the loaded YOLO model, and load_time is the time taken to load the model in seconds.
+    """
+    GPIO.output(17, GPIO.HIGH) # Signal GPIO pin before loading model.
+    start_time = time.time()
+    model = Interpreter(model_path,
                 experimental_delegates=[load_delegate('libedgetpu.so.1', options={'device': 'usb'})])
-            interpreter.allocate_tensors()
-            print(' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ')
-            print('INTERPRETER')
-            print(interpreter)
-            print(' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ')
-            GPIO.output(17, GPIO.LOW)
+    model.allocate_tensors()
+    end_time = time.time()
+    GPIO.output(17, GPIO.LOW) # Signal GPIO pin after loading model.
+    logging.info(f"Model loaded in {end_time - start_time} seconds.")
+    return model, end_time - start_time
 
-            # Get model details
-            input_details = interpreter.get_input_details()
-            output_details = interpreter.get_output_details()
-            _, height, width, _ = input_details[0]['shape']
-            print(' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ')
-            print('input')
-            print(input_details)
-            print('output')
-            print(output_details)
-            print(' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ')
+def process_images(model, imgs_path, results_path, bb_conf=0.5):
+    """
+    Process images for object detection and measure processing time.
 
+    Args:
+        model: Loaded TFLite model interpreter.
+        imgs_path (str): Directory containing images to process.
+        results_path (str): Directory containing images results.
+        bb_conf (float): Confidence threshold for bounding box predictions.
 
-            frame_resized = cv2.resize(frame_rgb, (width, height))
-            # Normalizar los valores de píxeles a INT8
-            input_data = frame_resized.astype(np.int8)
-            # Agregar una dimensión para representar el lote (batch)
-            input_data = np.expand_dims(input_data, axis=0)
-            print(' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ')
-            print('input_data')
-            print(input_data)
-            print(' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ')
+    Returns:
+        list: A list of dictionaries, each containing the filename and the time taken to process that file.
+    """
 
-
-            # Perform the actual detection by running the model with the image as input
-            GPIO.output(17, GPIO.HIGH)
-            interpreter.set_tensor(input_details[0]['index'],input_data)
-            interpreter.invoke()
-            output_data = interpreter.get_tensor(output_details[0]['index'])
-            print(' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ')
-            print('output_data')
-            print(output_data)
-            print(' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ')
-            GPIO.output(17, GPIO.LOW)
-
-
-            print(' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ')
-            print('output_details[0][shape][2]')
-            print(output_details[0]['shape'][2])
-            print(' +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ')
-
-            # 
+    # Obtain model details
+    input_details = model.get_input_details()
+    output_details = model.get_output_details()
+    _, model_height, model_width, _ = input_details[0]['shape']
+    
+    # Work with images
+    image_timings = []
+    for filename in os.listdir(imgs_path):
+        if filename.endswith(('.png', '.jpg', '.jpeg')):
+            # Obtain image
+            img_path = os.path.join(imgs_path, filename)
+            img = cv2.imread(img_path)
+            if img is None:
+                logging.warning(f"Failed to load image {filename}")
+                continue
+            
+            # Adapt image
+            img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            img_resized = cv2.resize(img_rgb, (model_width, model_height))
+            img_norm = img_resized.astype(np.int8)
+            img_batch = np.expand_dims(img_norm, axis=0)
+            
+            # Predict
+            GPIO.output(17, GPIO.HIGH) # Signal GPIO pin before prediction.
+            start_time = time.time()
+            model.set_tensor(input_details[0]['index'], img_batch)
+            model.invoke()
+            results = model.get_tensor(output_details[0]['index'])
+            end_time = time.time()
+            GPIO.output(17, GPIO.LOW) # Signal GPIO pin after prediction.
+            image_timings.append({filename: end_time - start_time})
+            # Obtain all bounding boxes and confidences
             bb_dict = {}
             for i in range(output_details[0]['shape'][2]):
-                probs = output_data[0][4:, i].flatten() # CONF LABELS
-                if (np.max(probs)+128)/255 > 0.5:
-                    x, y, w, h = output_data[0][:4, i].flatten() # COORDS
-                    print(i, 'label:',np.max(probs), 'conf:',np.argmax(probs), (x, y, w, h))
+                confs = results[0][4:, i].flatten()  # CONF LABELS
+                if (np.max(confs)+128)/255 > bb_conf: # Adapt from FP32 to INT8
+                    x, y, w, h = results[0][:4, i].flatten() # COORDS
+                    x, y, w, h = (x+128)/255, (y+128)/255, (w+128)/255, (h+128)/255 # Adapts from FP32 to INT8
 
-                    x = (x+128)/255
-                    y = (y+128)/255
-                    w = (w+128)/255
-                    h = (h+128)/255
+                    x, y = int(x * img.shape[1]), int(y * img.shape[0]) 
+                    width, height = int(w * img.shape[1]), int(h * img.shape[0])
 
-                    label = np.argmax(probs)
-                    confi = (np.max(probs)+128)/255
-                    print(i, 'label:',label, 'conf:',confi, 'coords:',(x, y, w, h))
+                    x1, y1 = x - width // 2, y - height // 2
+                    x2, y2 = x1 + width, y1 + height
 
-                    # Coordenadas del punto (ejemplo)
-                    x = int(x * frame.shape[1])
-                    y = int(y * frame.shape[0])
-                    # Dimensiones del rectángulo
-                    width = int(w * frame.shape[1])
-                    height = int(h * frame.shape[0])
-                    print('Redim: ', (x, y, width, height), ' <> ', frame.shape)
-
-                    # Calcular las coordenadas del vértice superior izquierdo del rectángulo
-                    x_izquierda = x - width // 2
-                    y_arriba = y - height // 2
+                    conf, label = np.max(confs), np.argmax(confs)
                         
-                    # Guardar
                     if label not in bb_dict:
-                        print('Añado ', np.argmax(probs), label)
-                        bb_dict[label] = [(x_izquierda, y_arriba, x_izquierda + width, y_arriba + height, confi)]
+                        bb_dict[label] = [(x1, y1, x2, y2, conf)]
                     else:
-                        bb_dict[label].append((x_izquierda, y_arriba, x_izquierda + width, y_arriba + height, confi))
-
-            # Aplicamos NMS
-            rectangulos_eliminados = []
-            for key,vals in bb_dict.items():
-                # Ordenar la lista por el quinto valor de las tuplas (confianza) de manera descendente
+                        bb_dict[label].append((x1, y1, x2, y2, conf))
+            # Apply NMS and draw bounding boxes
+            for _, vals in bb_dict.items():
                 vals = sorted(vals, key=lambda x: x[4], reverse=True)
-                # Eliminar solapamientos mientras haya
                 while True:
-                    cantidad_anterior = len(vals)
-                    rectangulos_eliminados.extend(eliminar_solapamientos(vals))
-                    cantidad_actual = len(vals)
-
-                    # Salir del bucle si no hay cambios
-                    if cantidad_anterior == cantidad_actual:
+                    previous_count = len(vals)
+                    _ = remove_overlaps(vals)
+                    current_count = len(vals)
+                    if previous_count == current_count:
                         break
 
-                # Mostrar resultado
-                for rectangulo in vals:
-                    
-                    x1, y1, x2, y2, conf = rectangulo
-                    print(key, x1, y1, x2, y2, conf)
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 3)
-                    cv2.putText(frame, str(round(conf, 1)), (int(x1), int(y1)),
-                                cv2.FONT_HERSHEY_SIMPLEX, 3, (0,255,0), 3, cv2.LINE_AA)
+                for rectangle in vals:
+                    x1, y1, x2, y2, conf = rectangle
+                    cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 3)
+                    cv2.putText(img, str(round(conf, 1)), (int(x1), int(y1)), cv2.FONT_HERSHEY_SIMPLEX, 3, (0, 255, 0), 3, cv2.LINE_AA)
+            
+            # Save the image
+            save_path = os.path.join(results_path, filename)
+            cv2.imwrite(save_path, img)
+            logging.info(f"Processed {filename} and saved to {save_path}")
 
-            # Guardar la imagen resultante con rectángulos dibujados
-            output_path = 'results/yolov8_INT8_TFLite_RPi-USBCoral/'+filename
-            cv2.imwrite(output_path, frame)
-GPIO.cleanup()
+    return image_timings
+
+def main(work_path, model):
+    """
+    Main function to initialize logging, load the model, and process images.
+    
+    Args:
+        work_path (str): Working directory path where results and logs will be saved.
+        model (str): Model filename to be loaded.
+    """
+    
+    results_path = f'results/{work_path}'
+
+    # Starting oscilloscope flag
+    GPIO.setup(17, GPIO.OUT)
+    GPIO.output(17, GPIO.LOW)
+    
+    setup_logging(log_path=f'{results_path}/log.txt', log_to_console=False)
+    
+    # Start detection process
+    start_time = time.time()
+    model, model_load_time = load_model(f'final-resources/models/yolov8/{model}')
+    image_timings = process_images(model, 'final-resources/data/images', results_path, 0.5)
+    total_time = time.time() - start_time
+    timings = {
+        "model_load_time": model_load_time,
+        "image_prediction_times": image_timings,
+        "total_execution_time": total_time
+    }
+
+    # Save data
+    if not os.path.exists(results_path):
+        os.makedirs(results_path)
+    with open(os.path.join(results_path, 'times.json'), 'w') as file:
+        json.dump(timings, file, indent=4)
+    logging.info(f"END script in {total_time} seconds.")
+
+    # Ending oscilloscope flag
+    GPIO.setup(17, GPIO.OUT)
+    GPIO.output(17, GPIO.LOW)
+
+if __name__ == "__main__":
+    GPIO.setmode(GPIO.BCM) # Setup GPIO mode
+    GPIO.cleanup() # Ensure GPIOs are ok
+    main('yolov8_INT8_TFLite_RPi-USBCoral', 'best_full_integer_quant_edgetpu.tflite')
+    GPIO.cleanup() # Clean GPIOs

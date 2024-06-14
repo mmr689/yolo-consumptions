@@ -1,5 +1,5 @@
 """
-Object Detection System using YOLO TFLite INT8 model and Raspberry Pi
+Object Detection System using YOLO TFLite FP32 model and Raspberry Pi
 
 This script configures a Raspberry Pi to perform object detection on a set of images using the YOLO (You Only Look Once) TFLite FP32 model.
 It includes functions for setting up logging, loading the YOLO TFLite model, processing images to detect objects,
@@ -84,7 +84,7 @@ def setup_logging(log_path, log_to_console=True):
         handlers=handlers
     )
 
-def load_model(model_path):
+def load_model(model_path, device):
     """
     Load a YOLO model from a specified path and measure load time.
     
@@ -96,14 +96,23 @@ def load_model(model_path):
     """
     GPIO.output(17, GPIO.HIGH) # Signal GPIO pin before loading model.
     start_time = time.time()
-    model = Interpreter(model_path=model_path)
+    if device == 'RPi':
+        model = Interpreter(model_path=model_path)
+    elif device == 'EdgeTPU':
+        from tflite_runtime.interpreter import load_delegate
+        model = Interpreter(model_path,
+                experimental_delegates=[load_delegate('libedgetpu.so.1', options={'device': 'pci:0'})])
+    elif device == 'USB-EdgeTPU':
+        from tflite_runtime.interpreter import load_delegate
+        model = Interpreter(model_path,
+                experimental_delegates=[load_delegate('libedgetpu.so.1', options={'device': 'usb'})])
     model.allocate_tensors()
     end_time = time.time()
     GPIO.output(17, GPIO.LOW) # Signal GPIO pin after loading model.
     logging.info(f"Model loaded in {end_time - start_time} seconds.")
     return model, end_time - start_time
 
-def process_images(model, imgs_path, results_path, bb_conf=0.5):
+def process_images(model, imgs_path, results_path, precision, bb_conf=0.5):
     """
     Process images for object detection and measure processing time.
 
@@ -136,7 +145,10 @@ def process_images(model, imgs_path, results_path, bb_conf=0.5):
             # Adapt image
             img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img_resized = cv2.resize(img_rgb, (model_width, model_height))
-            img_norm = img_resized.astype(np.int8)
+            if precision == 'FP32':
+                img_norm = img_resized.astype(np.float32) / 255.0
+            elif precision == 'INT8':
+                img_norm = img_resized.astype(np.int8)
             img_batch = np.expand_dims(img_norm, axis=0)
             
             # Predict
@@ -152,17 +164,21 @@ def process_images(model, imgs_path, results_path, bb_conf=0.5):
             bb_dict = {}
             for i in range(output_details[0]['shape'][2]):
                 confs = results[0][4:, i].flatten()
-                conf, label = (np.max(confs)+128)/255, np.argmax(confs)
-                if conf > bb_conf: # Adapt from FP32 to INT8
-                    x, y, w, h = results[0][:4, i].flatten() # COORDS
-                    x, y, w, h = (x+128)/255, (y+128)/255, (w+128)/255, (h+128)/255 # Adapts from FP32 to INT8
+                if precision == 'FP32':
+                    conf, label = np.max(confs), np.argmax(confs)
+                elif precision == 'INT8':
+                    conf, label = (np.max(confs)+128)/255, np.argmax(confs)
+                if conf > bb_conf:
+                    x, y, w, h = results[0][:4, i].flatten()  # COORDS
+                    if precision == 'INT8':
+                        x, y, w, h = (x+128)/255, (y+128)/255, (w+128)/255, (h+128)/255
 
                     x, y = int(x * img.shape[1]), int(y * img.shape[0]) 
                     width, height = int(w * img.shape[1]), int(h * img.shape[0])
 
                     x1, y1 = x - width // 2, y - height // 2
                     x2, y2 = x1 + width, y1 + height
-                        
+                    
                     if label not in bb_dict:
                         bb_dict[label] = [(x1, y1, x2, y2, conf)]
                     else:
@@ -189,27 +205,45 @@ def process_images(model, imgs_path, results_path, bb_conf=0.5):
 
     return image_timings
 
-def main(work_path, model):
+def main(precision, device):
     """
     Main function to initialize logging, load the model, and process images.
     
     Args:
-        work_path (str): Working directory path where results and logs will be saved.
-        model (str): Model filename to be loaded.
+        precision (str): Model precision. Can be FP32 or INT8.
+        device (str): Device we are going to use. Can be RPi, EdgeTPU, USB-EdgeTPU
     """
     
-    results_path = f'results/{work_path}'
-
     # Starting oscilloscope flag
     GPIO.setup(17, GPIO.OUT)
     GPIO.output(17, GPIO.LOW)
     
+    work_path = f'yolov8_{precision}_TFLite'
+    if precision == 'FP32':
+        work_path += '_RPi'
+        model = 'best_float32.tflite'
+    elif precision == 'INT8' and device == 'RPi':
+        work_path += '_RPi'
+        model = 'best_full_integer_quant.tflite'
+    elif precision == 'INT8' and 'EdgeTPU' in device:
+        if 'USB' in device:
+            work_path += '_RPi-USBCoral'
+        elif 'mini' in device:
+            work_path += '_DevBoardMini'
+        else:
+            work_path += '_DevBoard'
+        model = 'best_full_integer_quant_edgetpu.tflite'
+    results_path = f'results/{work_path}'
+    if not os.path.exists(results_path):
+        print(f"Directory {results_path} does not exist. Please create it to proceed.")
+
     setup_logging(log_path=f'{results_path}/log.txt', log_to_console=False)
+    logging.info(f"User device: {device}. User precision: {precision}")
     
     # Start detection process
     start_time = time.time()
-    model, model_load_time = load_model(f'final-resources/models/yolov8/{model}')
-    image_timings = process_images(model, 'final-resources/data/images', results_path, 0.5)
+    model, model_load_time = load_model(f'final-resources/models/yolov8/{model}', device)
+    image_timings = process_images(model, 'final-resources/data/images', results_path, precision, 0.5)
     total_time = time.time() - start_time
     timings = {
         "model_load_time": model_load_time,
@@ -231,5 +265,5 @@ def main(work_path, model):
 if __name__ == "__main__":
     GPIO.setmode(GPIO.BCM) # Setup GPIO mode
     GPIO.cleanup() # Ensure GPIOs are ok
-    main('yolov8_INT8_TFLite', 'best_full_integer_quant.tflite')
+    main('INT8', 'USB-EdgeTPU')
     GPIO.cleanup() # Clean GPIOs
