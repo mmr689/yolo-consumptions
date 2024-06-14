@@ -1,0 +1,13 @@
+2024-06-14 15:20:31,330 - INFO - User device: EdgeTPU. User precision: INT8
+2024-06-14 15:20:31,386 - INFO - Model loaded in 0.0555109977722168 seconds.
+2024-06-14 15:20:33,047 - INFO - Processed img_20221225_024503.jpg and saved to results/yolov8_INT8_TFLite_DevBoard/img_20221225_024503.jpg
+2024-06-14 15:20:34,653 - INFO - Processed img_20230107_184503.jpg and saved to results/yolov8_INT8_TFLite_DevBoard/img_20230107_184503.jpg
+2024-06-14 15:20:36,221 - INFO - Processed img_20230104_021503.jpg and saved to results/yolov8_INT8_TFLite_DevBoard/img_20230104_021503.jpg
+2024-06-14 15:20:37,812 - INFO - Processed img_20230104_200004.jpg and saved to results/yolov8_INT8_TFLite_DevBoard/img_20230104_200004.jpg
+2024-06-14 15:20:39,415 - INFO - Processed img_20221228_213004.jpg and saved to results/yolov8_INT8_TFLite_DevBoard/img_20221228_213004.jpg
+2024-06-14 15:20:41,015 - INFO - Processed img_20230109_054503.jpg and saved to results/yolov8_INT8_TFLite_DevBoard/img_20230109_054503.jpg
+2024-06-14 15:20:42,595 - INFO - Processed img_20230103_234504.jpg and saved to results/yolov8_INT8_TFLite_DevBoard/img_20230103_234504.jpg
+2024-06-14 15:20:44,195 - INFO - Processed img_20230108_234503.jpg and saved to results/yolov8_INT8_TFLite_DevBoard/img_20230108_234503.jpg
+2024-06-14 15:20:45,767 - INFO - Processed img_20230109_050005.jpg and saved to results/yolov8_INT8_TFLite_DevBoard/img_20230109_050005.jpg
+2024-06-14 15:20:47,362 - INFO - Processed img_20230106_200005.jpg and saved to results/yolov8_INT8_TFLite_DevBoard/img_20230106_200005.jpg
+2024-06-14 15:20:47,370 - INFO - END script in 16.033852100372314 seconds.
