@@ -141,5 +141,5 @@ def main(work_path, model):
 if __name__ == "__main__":
     GPIO.setmode(GPIO.BCM) # Setup GPIO mode
     GPIO.cleanup() # Ensure GPIOs are ok
-    main('yolov8_FP32_pt', 'best.pt')
+    main('yolov8_FP32_pt_RPi', 'best.pt')
     GPIO.cleanup() # Clean GPIOs
