@@ -100,7 +100,7 @@ def load_model(model_path, device, gpio):
     else:
         gpio.write(True)
     start_time = time.time()
-    if device == 'RPi':
+    if device == 'RPi' or device == 'Rock':
         model = Interpreter(model_path=model_path)
     elif device == 'EdgeTPU':
         from tflite_runtime.interpreter import load_delegate
@@ -236,10 +236,16 @@ def main(precision, device, gpio):
     
     work_path = f'yolov8_{precision}_TFLite'
     if precision == 'FP32':
-        work_path += '_RPi'
+        if device == 'RPi':
+            work_path += '_RPi'
+        elif device == 'Rock':
+            work_path += '_Rock4Plus'
         model = 'best_float32.tflite'
-    elif precision == 'INT8' and device == 'RPi':
-        work_path += '_RPi'
+    elif precision == 'INT8' and (device == 'RPi' or device == 'Rock'):
+        if device == 'RPi':
+            work_path += '_RPi'
+        elif device == 'Rock':
+            work_path += '_Rock4Plus'
         model = 'best_full_integer_quant.tflite'
     elif precision == 'INT8' and 'EdgeTPU' in device:
         if 'USB' in device:
@@ -281,24 +287,31 @@ def main(precision, device, gpio):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run YOLO Object Detection with specified precision and device.')
-    parser.add_argument('precision', type=str, choices=['FP32', 'INT8'],
+    parser.add_argument('precision', type=str,
+                        choices=['FP32', 'INT8'],
                         help='Precision of the model (FP32 or INT8)')
-    parser.add_argument('device', type=str, help='Device to run the detection on (RPi, EdgeTPU, USB-EdgeTPU)')
+    parser.add_argument('device', type=str,
+                        choices=['RPi', 'EdgeTPU', 'USB-EdgeTPU', 'Rock'],
+                        help='Device to run the detection on (RPi, EdgeTPU, USB-EdgeTPU, Rock)')
     
     args = parser.parse_args()
     
     if args.device == 'RPi' or args.device == 'USB-EdgeTPU':
         import RPi.GPIO as GPIO
         GPIO.setmode(GPIO.BCM) # Setup GPIO mode
-        GPIO.cleanup() # Ensure GPIOs are cleaned before starting
         gpio = None
         
-    elif args.device == 'EdgeTPU':
+    elif args.device == 'EdgeTPU' or args.device == 'Rock':
         from periphery import GPIO
-        gpio = GPIO("/dev/gpiochip2", 13, "out")
-        gpio.close()
+        if args.device == 'EdgeTPU':
+            gpio = GPIO("/dev/gpiochip2", 13, "out")
+        else:
+            gpio = GPIO("/dev/gpiochip3", 15, "out")
         
 
     main(args.precision, args.device, gpio)
 
-    GPIO.cleanup() # Clean GPIOs after running
+    if gpio is None:
+        GPIO.cleanup() # Clean GPIOs after running
+    else:
+        gpio.close()
