@@ -1,0 +1,1 @@
+2024-06-15 09:51:23,151 - INFO - User device: Rock-EdgeTPU. User precision: INT8

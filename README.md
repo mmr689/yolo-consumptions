@@ -32,6 +32,28 @@
 - https://github.com/feranick/libedgetpu/releases
   - https://github.com/feranick/libedgetpu/releases/download/v16.0TF2.15.1-1/libedgetpu1-std_16.0tf2.15.1-1.bookworm_arm64.deb
 
+wget https://github.com/feranick/libedgetpu/releases/download/v16.0TF2.15.1-1/libedgetpu1-std_16.0tf2.15.1-1.bookworm_arm64.deb
+sudo apt install ./libedgetpu1-std_16.0tf2.15.1-1.bookworm_arm64.deb
+
+Rock
+wget https://github.com/feranick/libedgetpu/releases/download/v16.0TF2.15.1-1/libedgetpu1-std_16.0tf2.15.1-1.bullseye_arm64.deb
+sudo apt install ./libedgetpu1-std_16.0tf2.15.1-1.bullseye_arm64.deb
+sudo find / -name libedgetpu.so.1
+> /usr/lib/aarch64-linux-gnu/libedgetpu.so.1
+```python
+from tflite_runtime.interpreter import Interpreter, load_delegate
+
+# Actualiza la ruta del delegado
+delegate_path = '/usr/lib/aarch64-linux-gnu/libedgetpu.so.1'
+
+# Ejemplo de cómo cargar el modelo con el delegado
+interpreter = Interpreter(
+    model_path='path_to_your_model.tflite',
+    experimental_delegates=[load_delegate(delegate_path, options={'device': 'usb'})]
+)
+```
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/aarch64-linux-gnu
+
 
 # Marcas temporales (GPIOs/timer)
 

@@ -106,10 +106,14 @@ def load_model(model_path, device, gpio):
         from tflite_runtime.interpreter import load_delegate
         model = Interpreter(model_path,
                 experimental_delegates=[load_delegate('libedgetpu.so.1', options={'device': 'pci:0'})])
-    elif device == 'USB-EdgeTPU':
+    elif device == 'RPi-EdgeTPU':
         from tflite_runtime.interpreter import load_delegate
         model = Interpreter(model_path,
                 experimental_delegates=[load_delegate('libedgetpu.so.1', options={'device': 'usb'})])
+    elif device == 'Rock-EdgeTPU':
+        from tflite_runtime.interpreter import load_delegate
+        model = Interpreter(model_path,
+                experimental_delegates=[load_delegate('/usr/lib/aarch64-linux-gnu/libedgetpu.so.1', options={'device': 'usb'})])
     model.allocate_tensors()
     end_time = time.time()
     if gpio is None:
@@ -224,7 +228,7 @@ def main(precision, device, gpio):
     
     Args:
         precision (str): Model precision. Can be FP32 or INT8.
-        device (str): Device we are going to use. Can be RPi, EdgeTPU, USB-EdgeTPU
+        device (str): Device we are going to use. Can be RPi, EdgeTPU, RPi-EdgeTPU
     """
     # Starting oscilloscope flag
     if gpio is None:
@@ -248,10 +252,10 @@ def main(precision, device, gpio):
             work_path += '_Rock4Plus'
         model = 'best_full_integer_quant.tflite'
     elif precision == 'INT8' and 'EdgeTPU' in device:
-        if 'USB' in device:
+        if device == 'RPi-EdgeTPU':
             work_path += '_RPi-USBCoral'
-        elif 'mini' in device:
-            work_path += '_DevBoardMini'
+        elif device == 'Rock-EdgeTPU':
+            work_path += '_Rock-USBCoral'
         else:
             work_path += '_DevBoard'
         model = 'best_full_integer_quant_edgetpu.tflite'
@@ -291,21 +295,21 @@ if __name__ == "__main__":
                         choices=['FP32', 'INT8'],
                         help='Precision of the model (FP32 or INT8)')
     parser.add_argument('device', type=str,
-                        choices=['RPi', 'EdgeTPU', 'USB-EdgeTPU', 'Rock'],
-                        help='Device to run the detection on (RPi, EdgeTPU, USB-EdgeTPU, Rock)')
+                        choices=['RPi', 'EdgeTPU', 'RPi-EdgeTPU', 'Rock', 'Rock-EdgeTPU'],
+                        help='Device to run the detection on (RPi, EdgeTPU, RPi-EdgeTPU, Rock, Rock-EdgeTPU)')
     
     args = parser.parse_args()
     
-    if args.device == 'RPi' or args.device == 'USB-EdgeTPU':
+    if args.device == 'RPi' or args.device == 'RPi-EdgeTPU':
         import RPi.GPIO as GPIO
         GPIO.setmode(GPIO.BCM) # Setup GPIO mode
         gpio = None
         
-    elif args.device == 'EdgeTPU' or args.device == 'Rock':
+    elif args.device == 'EdgeTPU' or args.device == 'Rock' or args.device == 'Rock-EdgeTPU':
         from periphery import GPIO
         if args.device == 'EdgeTPU':
             gpio = GPIO("/dev/gpiochip2", 13, "out")
-        else:
+        elif args.device == 'Rock' or args.device == 'Rock-EdgeTPU':
             gpio = GPIO("/dev/gpiochip3", 15, "out")
         
 
