@@ -54,6 +54,8 @@ interpreter = Interpreter(
 ```
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/aarch64-linux-gnu
 
+NO SE EL PASO PERO CONVIENE REINICIAR
+
 
 # Marcas temporales (GPIOs/timer)
 
