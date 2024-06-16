@@ -2,6 +2,7 @@
 .rpi_ultralytics_venv/
 .rpi_tensorflow_venv/
 .rock_tensorflow_venv/
+.rock_ultralytics_venv/
 
 __pycache__/
 

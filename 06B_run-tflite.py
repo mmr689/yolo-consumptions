@@ -17,6 +17,28 @@ import cv2
 import numpy as np
 
 
+import threading
+from multiprocessing import Value
+import psutil
+import csv
+import time
+from datetime import datetime
+
+def monitor_resources(csv_file_path, interval=1, stop_event=threading.Event(), state_marker=0):
+    """
+    Monitors system resources and writes to a CSV file, including a state marker.
+    """
+    with open(csv_file_path, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['timestamp', 'cpu_usage_percent', 'memory_usage_percent', 'state'])
+        
+        while not stop_event.is_set():
+            cpu_usage = psutil.cpu_percent(interval=None)
+            memory_usage = psutil.virtual_memory().percent
+            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            writer.writerow([timestamp, cpu_usage, memory_usage, state_marker.value])
+            time.sleep(interval)
+
 def calculate_overlap(rect1, rect2):
     """
     Calculate the overlap between two rectangles.
@@ -222,7 +244,7 @@ def process_images(model, imgs_path, results_path, precision, gpio, bb_conf=0.5)
 
     return image_timings
 
-def main(precision, device, gpio):
+def main(precision, device, gpio, state_marker):
     """
     Main function to initialize logging, load the model, and process images.
     
@@ -231,6 +253,7 @@ def main(precision, device, gpio):
         device (str): Device we are going to use. Can be RPi, EdgeTPU, RPi-EdgeTPU
     """
     # Starting oscilloscope flag
+    state_marker.value = 0
     if gpio is None:
         GPIO.setup(17, GPIO.OUT)
         GPIO.output(17, GPIO.LOW)
@@ -269,8 +292,12 @@ def main(precision, device, gpio):
     
     # Start detection process
     start_time = time.time()
+    state_marker.value = 2
     model, model_load_time = load_model(f'final-resources/models/yolov8/{model}', device, gpio)
+    state_marker.value = 1
+    state_marker.value = 3
     image_timings = process_images(model, 'final-resources/data/images', results_path, precision, gpio, 0.5)
+    state_marker.value = 1
     total_time = time.time() - start_time
     timings = {
         "model_load_time": model_load_time,
@@ -297,25 +324,36 @@ if __name__ == "__main__":
     parser.add_argument('device', type=str,
                         choices=['RPi', 'EdgeTPU', 'RPi-EdgeTPU', 'Rock', 'Rock-EdgeTPU'],
                         help='Device to run the detection on (RPi, EdgeTPU, RPi-EdgeTPU, Rock, Rock-EdgeTPU)')
-    
     args = parser.parse_args()
+
+    # Prepare monitoring
+    stop_event = threading.Event()
+    state_marker = Value('i', 0)  # 'i' working with integer
+    monitor_thread = threading.Thread(target=monitor_resources, args=(f'results/{args.device}_{args.precision}_resource_usage.csv', 1, stop_event, state_marker))
+
+    try:
+        monitor_thread.start()
     
-    if args.device == 'RPi' or args.device == 'RPi-EdgeTPU':
-        import RPi.GPIO as GPIO
-        GPIO.setmode(GPIO.BCM) # Setup GPIO mode
-        gpio = None
-        
-    elif args.device == 'EdgeTPU' or args.device == 'Rock' or args.device == 'Rock-EdgeTPU':
-        from periphery import GPIO
-        if args.device == 'EdgeTPU':
-            gpio = GPIO("/dev/gpiochip2", 13, "out")
-        elif args.device == 'Rock' or args.device == 'Rock-EdgeTPU':
-            gpio = GPIO("/dev/gpiochip3", 15, "out")
-        
+        if args.device == 'RPi' or args.device == 'RPi-EdgeTPU':
+            import RPi.GPIO as GPIO
+            GPIO.setmode(GPIO.BCM) # Setup GPIO mode
+            gpio = None
+            
+        elif args.device == 'EdgeTPU' or args.device == 'Rock' or args.device == 'Rock-EdgeTPU':
+            from periphery import GPIO
+            if args.device == 'EdgeTPU':
+                gpio = GPIO("/dev/gpiochip2", 13, "out")
+            elif args.device == 'Rock' or args.device == 'Rock-EdgeTPU':
+                gpio = GPIO("/dev/gpiochip3", 15, "out")
+            
 
-    main(args.precision, args.device, gpio)
+        main(args.precision, args.device, gpio, state_marker)
 
-    if gpio is None:
-        GPIO.cleanup() # Clean GPIOs after running
-    else:
-        gpio.close()
+        if gpio is None:
+            GPIO.cleanup() # Clean GPIOs after running
+        else:
+            gpio.close()
+
+    finally:
+        stop_event.set()
+        monitor_thread.join()

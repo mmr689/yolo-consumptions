@@ -76,3 +76,64 @@ tf int8 quant
   carga modelo adaptado a edgetpu
   normaliza int 8
   redefine coords para int8
+
+
+# Devices
+
+<table>
+    <tr>
+        <th>Devices</th>
+        <th>FP32</th>
+        <th>INT8</th>
+    </tr>
+    <tr>
+        <td>RPi3B+</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>RPi4B+</td>
+        <td>✔️</td>
+        <td>✔️</td>
+    </tr>
+    <tr>
+        <td>RPi5</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Coral USB Accelerator + RPi3B+</td>
+        <td >➖</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Coral USB Accelerator + RPi4B+</td>
+        <td >➖</td>
+        <td>✔️</td>
+    </tr>
+    <tr>
+        <td>Coral USB Accelerator + RPi5</td>
+        <td >➖</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Coral Dev Board</td>
+        <td >➖</td>
+        <td>✔️</td>
+    </tr>
+    <tr>
+        <td>Coral Dev Board Mini</td>
+        <td>❌</td>
+        <td>❌</td>
+    </tr>
+    <tr>
+        <td>Rock4C+</td>
+        <td>✔️</td>
+        <td>✔️</td>
+    </tr>
+    <tr>
+        <td>Coral USB Accelerator + RockC4+</td>
+        <td >➖</td>
+        <td>✔️</td>
+    </tr>
+</table>

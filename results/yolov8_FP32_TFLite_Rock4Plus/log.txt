@@ -1,13 +1,13 @@
-2024-06-15 08:48:04,386 - INFO - User device: Rock. User precision: FP32
-2024-06-15 08:48:04,429 - INFO - Model loaded in 0.0427396297454834 seconds.
-2024-06-15 08:48:06,656 - INFO - Processed img_20221225_024503.jpg and saved to results/yolov8_FP32_TFLite_Rock4Plus/img_20221225_024503.jpg
-2024-06-15 08:48:08,797 - INFO - Processed img_20230103_234504.jpg and saved to results/yolov8_FP32_TFLite_Rock4Plus/img_20230103_234504.jpg
-2024-06-15 08:48:10,954 - INFO - Processed img_20230109_050005.jpg and saved to results/yolov8_FP32_TFLite_Rock4Plus/img_20230109_050005.jpg
-2024-06-15 08:48:13,101 - INFO - Processed img_20230104_200004.jpg and saved to results/yolov8_FP32_TFLite_Rock4Plus/img_20230104_200004.jpg
-2024-06-15 08:48:15,250 - INFO - Processed img_20230104_021503.jpg and saved to results/yolov8_FP32_TFLite_Rock4Plus/img_20230104_021503.jpg
-2024-06-15 08:48:17,392 - INFO - Processed img_20230108_234503.jpg and saved to results/yolov8_FP32_TFLite_Rock4Plus/img_20230108_234503.jpg
-2024-06-15 08:48:19,527 - INFO - Processed img_20230106_200005.jpg and saved to results/yolov8_FP32_TFLite_Rock4Plus/img_20230106_200005.jpg
-2024-06-15 08:48:21,662 - INFO - Processed img_20230109_054503.jpg and saved to results/yolov8_FP32_TFLite_Rock4Plus/img_20230109_054503.jpg
-2024-06-15 08:48:23,816 - INFO - Processed img_20230107_184503.jpg and saved to results/yolov8_FP32_TFLite_Rock4Plus/img_20230107_184503.jpg
-2024-06-15 08:48:25,971 - INFO - Processed img_20221228_213004.jpg and saved to results/yolov8_FP32_TFLite_Rock4Plus/img_20221228_213004.jpg
-2024-06-15 08:48:25,995 - INFO - END script in 21.607852935791016 seconds.
+2024-06-16 10:28:02,919 - INFO - User device: Rock. User precision: FP32
+2024-06-16 10:28:02,959 - INFO - Model loaded in 0.039742469787597656 seconds.
+2024-06-16 10:28:05,161 - INFO - Processed img_20221225_024503.jpg and saved to results/yolov8_FP32_TFLite_Rock4Plus/img_20221225_024503.jpg
+2024-06-16 10:28:07,288 - INFO - Processed img_20230103_234504.jpg and saved to results/yolov8_FP32_TFLite_Rock4Plus/img_20230103_234504.jpg
+2024-06-16 10:28:09,433 - INFO - Processed img_20230109_050005.jpg and saved to results/yolov8_FP32_TFLite_Rock4Plus/img_20230109_050005.jpg
+2024-06-16 10:28:11,579 - INFO - Processed img_20230104_200004.jpg and saved to results/yolov8_FP32_TFLite_Rock4Plus/img_20230104_200004.jpg
+2024-06-16 10:28:13,708 - INFO - Processed img_20230104_021503.jpg and saved to results/yolov8_FP32_TFLite_Rock4Plus/img_20230104_021503.jpg
+2024-06-16 10:28:15,829 - INFO - Processed img_20230108_234503.jpg and saved to results/yolov8_FP32_TFLite_Rock4Plus/img_20230108_234503.jpg
+2024-06-16 10:28:17,947 - INFO - Processed img_20230106_200005.jpg and saved to results/yolov8_FP32_TFLite_Rock4Plus/img_20230106_200005.jpg
+2024-06-16 10:28:20,078 - INFO - Processed img_20230109_054503.jpg and saved to results/yolov8_FP32_TFLite_Rock4Plus/img_20230109_054503.jpg
+2024-06-16 10:28:22,205 - INFO - Processed img_20230107_184503.jpg and saved to results/yolov8_FP32_TFLite_Rock4Plus/img_20230107_184503.jpg
+2024-06-16 10:28:24,356 - INFO - Processed img_20221228_213004.jpg and saved to results/yolov8_FP32_TFLite_Rock4Plus/img_20221228_213004.jpg
+2024-06-16 10:28:24,380 - INFO - END script in 21.45964765548706 seconds.
