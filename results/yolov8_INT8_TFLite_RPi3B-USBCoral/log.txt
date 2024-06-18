@@ -1,0 +1,13 @@
+2024-06-18 14:15:11,069 - INFO - User device: RPi-EdgeTPU. User precision: INT8
+2024-06-18 14:15:15,724 - INFO - Model loaded in 4.64115309715271 seconds.
+2024-06-18 14:15:20,173 - INFO - Processed img_20230109_050005.jpg and saved to results/yolov8_INT8_TFLite_RPi3B-USBCoral/img_20230109_050005.jpg
+2024-06-18 14:15:25,060 - INFO - Processed img_20230103_234504.jpg and saved to results/yolov8_INT8_TFLite_RPi3B-USBCoral/img_20230103_234504.jpg
+2024-06-18 14:15:29,608 - INFO - Processed img_20230109_054503.jpg and saved to results/yolov8_INT8_TFLite_RPi3B-USBCoral/img_20230109_054503.jpg
+2024-06-18 14:15:34,130 - INFO - Processed img_20230104_200004.jpg and saved to results/yolov8_INT8_TFLite_RPi3B-USBCoral/img_20230104_200004.jpg
+2024-06-18 14:15:38,536 - INFO - Processed img_20221228_213004.jpg and saved to results/yolov8_INT8_TFLite_RPi3B-USBCoral/img_20221228_213004.jpg
+2024-06-18 14:15:43,061 - INFO - Processed img_20221225_024503.jpg and saved to results/yolov8_INT8_TFLite_RPi3B-USBCoral/img_20221225_024503.jpg
+2024-06-18 14:15:47,163 - INFO - Processed img_20230104_021503.jpg and saved to results/yolov8_INT8_TFLite_RPi3B-USBCoral/img_20230104_021503.jpg
+2024-06-18 14:15:51,293 - INFO - Processed img_20230107_184503.jpg and saved to results/yolov8_INT8_TFLite_RPi3B-USBCoral/img_20230107_184503.jpg
+2024-06-18 14:15:55,444 - INFO - Processed img_20230106_200005.jpg and saved to results/yolov8_INT8_TFLite_RPi3B-USBCoral/img_20230106_200005.jpg
+2024-06-18 14:16:00,053 - INFO - Processed img_20230108_234503.jpg and saved to results/yolov8_INT8_TFLite_RPi3B-USBCoral/img_20230108_234503.jpg
+2024-06-18 14:16:00,115 - INFO - END script in 49.02946710586548 seconds.

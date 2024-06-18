@@ -39,14 +39,18 @@ def get_rpi_version():
         with open("/proc/device-tree/model", "r") as file:
             model_info = file.read().strip()
 
-        if 'Raspberry Pi 4 Model B' in model_info:
+        if 'Raspberry Pi 3 Model B' in model_info:
+            version = 'RPi3B'
+        elif 'Raspberry Pi 4 Model B' in model_info:
             version = 'RPi4B'
+        elif 'Raspberry Pi 5 Model B' in model_info:
+            version = 'RPi5B'
         
         else:
             version = model_info.replace(' ', '_')
     except FileNotFoundError:
         version = 'unknown_rpi'
-
+        
     return version
 
 def working_paths(precision, device):
