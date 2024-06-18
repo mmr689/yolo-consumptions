@@ -22,6 +22,19 @@ import cv2  # Image processing
 import numpy as np  # Mathematical operations and multi-dimensional arrays
 from tflite_runtime.interpreter import Interpreter  # Interpreter for TFLite models
 
+def get_rpi_version():
+    try:
+        with open("/proc/device-tree/model", "r") as file:
+            model_info = file.read().strip()
+
+        if 'Raspberry Pi 4 Model B' in model_info:
+            return 'RPi4B'
+        
+        else:
+            return model_info.replace(' ', '_')
+    except FileNotFoundError:
+        return "Cannot determine Raspberry Pi model."
+
 def working_paths(precision, device):
     """
     Determine and create the working paths and model paths based on the model precision and device.
@@ -36,19 +49,19 @@ def working_paths(precision, device):
     work_path = f'yolov8_{precision}_TFLite'
     if precision == 'FP32':
         if device == 'RPi':
-            work_path += '_RPi'
+            work_path += f'_{get_rpi_version()}'
         elif device == 'Rock':
             work_path += '_Rock4Plus'
         model_path = 'best_float32.tflite'
     elif precision == 'INT8' and (device == 'RPi' or device == 'Rock'):
         if device == 'RPi':
-            work_path += '_RPi'
+            work_path += f'_{get_rpi_version()}'
         elif device == 'Rock':
             work_path += '_Rock4Plus'
         model_path = 'best_full_integer_quant.tflite'
     elif precision == 'INT8' and 'EdgeTPU' in device:
         if device == 'RPi-EdgeTPU':
-            work_path += '_RPi-USBCoral'
+            work_path += f'_{get_rpi_version()}-USBCoral'
         elif device == 'Rock-EdgeTPU':
             work_path += '_Rock-USBCoral'
         else:
