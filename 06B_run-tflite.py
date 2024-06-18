@@ -1,28 +1,88 @@
 """
-Object Detection System using YOLO TFLite FP32 model and Raspberry Pi
+Object Detection System using YOLO TFLite models (FP32 & INT8)
 
-This script configures a Raspberry Pi to perform object detection on a set of images using the YOLO (You Only Look Once) TFLite FP32 model.
-It includes functions for setting up logging, loading the YOLO TFLite model, processing images to detect objects,
+This script configures different Raspberry Pi, Rock and Coral devices to perform object detection on a set of images using the YOLO (You Only Look Once) TFLite FP32 model.
+It includes functions for setting up logging, monitoring resources, loading the YOLO TFLite model, processing images to detect objects,
 and saving timing data for analysis. GPIO pins are used to signal the start and end of significant operations,
 which can be monitored with an oscilloscope for debugging or performance measurement.
 """
 
-import argparse
-from tflite_runtime.interpreter import Interpreter
-import os
-import time
-import json
-import logging
-import cv2
-import numpy as np
+import os  # OS operations
+import time  # Time handling and measurement
+import json  # JSON file reading and writing
+import csv  # CSV file reading and writing
+import logging  # Logging events and messages
+from datetime import datetime  # Date and time handling
+import argparse  # Command-line argument parsing
+from multiprocessing import Value  # Sharing data between processes
+import threading  # Thread handling for concurrent tasks
 
+import psutil  # System resource monitoring
+import cv2  # Image processing
+import numpy as np  # Mathematical operations and multi-dimensional arrays
+from tflite_runtime.interpreter import Interpreter  # Interpreter for TFLite models
 
-import threading
-from multiprocessing import Value
-import psutil
-import csv
-import time
-from datetime import datetime
+def working_paths(precision, device):
+    """
+    Determine and create the working paths and model paths based on the model precision and device.
+
+    Args:
+        precision (str): Model precision. Can be 'FP32' or 'INT8'.
+        device (str): Device to be used. Options are 'RPi', 'Rock', 'EdgeTPU', 'RPi-EdgeTPU', and 'Rock-EdgeTPU'.
+
+    Returns:
+        tuple: A tuple containing the results path and model path.
+    """
+    work_path = f'yolov8_{precision}_TFLite'
+    if precision == 'FP32':
+        if device == 'RPi':
+            work_path += '_RPi'
+        elif device == 'Rock':
+            work_path += '_Rock4Plus'
+        model_path = 'best_float32.tflite'
+    elif precision == 'INT8' and (device == 'RPi' or device == 'Rock'):
+        if device == 'RPi':
+            work_path += '_RPi'
+        elif device == 'Rock':
+            work_path += '_Rock4Plus'
+        model_path = 'best_full_integer_quant.tflite'
+    elif precision == 'INT8' and 'EdgeTPU' in device:
+        if device == 'RPi-EdgeTPU':
+            work_path += '_RPi-USBCoral'
+        elif device == 'Rock-EdgeTPU':
+            work_path += '_Rock-USBCoral'
+        else:
+            work_path += '_DevBoard'
+        model_path = 'best_full_integer_quant_edgetpu.tflite'
+    results_path = f'results/{work_path}'
+    if not os.path.exists(results_path):
+        os.makedirs(results_path)
+
+    return results_path, model_path
+
+def set_gpio(device):
+    """
+    Configure and return the GPIO interface based on the device.
+
+    Args:
+        device (str): Device to be used. Options are 'RPi', 'EdgeTPU', 'RPi-EdgeTPU', 'Rock', and 'Rock-EdgeTPU'.
+
+    Returns:
+        GPIO object or None: Configured GPIO interface or None if using RPi GPIO.
+    """
+    if device == 'RPi' or device == 'RPi-EdgeTPU':
+        import RPi.GPIO as GPIO
+        GPIO.setmode(GPIO.BCM) # Setup GPIO mode
+        gpio = None
+        
+    elif device == 'EdgeTPU' or device == 'Rock' or device == 'Rock-EdgeTPU':
+        from periphery import GPIO
+        if device == 'EdgeTPU':
+            gpio = GPIO("/dev/gpiochip2", 13, "out")
+        elif device == 'Rock' or device == 'Rock-EdgeTPU':
+            gpio = GPIO("/dev/gpiochip3", 15, "out")
+    
+    return gpio
 
 def monitor_resources(csv_file_path, interval=1, stop_event=threading.Event(), state_marker=0):
     """
@@ -113,6 +173,8 @@ def load_model(model_path, device, gpio):
     
     Args:
         model_path (str): File path of the YOLO model.
+        device (str): Device we are going to use. Can be RPi, Rock, EdgeTPU, RPi-EdgeTPU, Rock-EdgeTPU
+        gpio: GPIO interface for controlling hardware signals. Can be None or a GPIO object.
 
     Returns:
         tuple: (model, load_time) where model is the loaded YOLO model, and load_time is the time taken to load the model in seconds.
@@ -153,6 +215,8 @@ def process_images(model, imgs_path, results_path, precision, gpio, bb_conf=0.5)
         model: Loaded TFLite model interpreter.
         imgs_path (str): Directory containing images to process.
         results_path (str): Directory containing images results.
+        precision (str): Model precision. Can be FP32 or INT8.
+        gpio: GPIO interface for controlling hardware signals. Can be None or a GPIO object.
         bb_conf (float): Confidence threshold for bounding box predictions.
 
     Returns:
@@ -244,13 +308,21 @@ def process_images(model, imgs_path, results_path, precision, gpio, bb_conf=0.5)
 
     return image_timings
 
-def main(precision, device, gpio, state_marker):
+def main(precision, device, results_path, model, gpio, state_marker):
     """
     Main function to initialize logging, load the model, and process images.
     
     Args:
-        precision (str): Model precision. Can be FP32 or INT8.
-        device (str): Device we are going to use. Can be RPi, EdgeTPU, RPi-EdgeTPU
+        precision (str): Model precision. Can be 'FP32' or 'INT8'.
+        device (str): Device to be used for running the model. Options are 'RPi', 'Rock', 'EdgeTPU', 'RPi-EdgeTPU', and 'Rock-EdgeTPU'.
+        results_path (str): Path to save the results and timings.
+        model (str): Path to the model to be loaded.
+        gpio: GPIO interface for controlling hardware signals. Can be None or a GPIO object.
+        state_marker (multiprocessing.Value): Shared integer used for tracking the state of the process.
+            - 0: Initial state.
+            - 1: Model loaded.
+            - 2: Detection process started.
+            - 3: Image processing started.
     """
     # Starting oscilloscope flag
     state_marker.value = 0
@@ -260,35 +332,6 @@ def main(precision, device, gpio, state_marker):
     else:
         gpio.write(True)
         gpio.write(False)
-    
-    work_path = f'yolov8_{precision}_TFLite'
-    if precision == 'FP32':
-        if device == 'RPi':
-            work_path += '_RPi'
-        elif device == 'Rock':
-            work_path += '_Rock4Plus'
-        model = 'best_float32.tflite'
-    elif precision == 'INT8' and (device == 'RPi' or device == 'Rock'):
-        if device == 'RPi':
-            work_path += '_RPi'
-        elif device == 'Rock':
-            work_path += '_Rock4Plus'
-        model = 'best_full_integer_quant.tflite'
-    elif precision == 'INT8' and 'EdgeTPU' in device:
-        if device == 'RPi-EdgeTPU':
-            work_path += '_RPi-USBCoral'
-        elif device == 'Rock-EdgeTPU':
-            work_path += '_Rock-USBCoral'
-        else:
-            work_path += '_DevBoard'
-        model = 'best_full_integer_quant_edgetpu.tflite'
-    results_path = f'results/{work_path}'
-    
-    if not os.path.exists(results_path):
-        os.makedirs(results_path)
-        
-    setup_logging(log_path=f'{results_path}/log.txt', log_to_console=False)
-    logging.info(f"User device: {device}. User precision: {precision}")
     
     # Start detection process
     start_time = time.time()
@@ -317,6 +360,7 @@ def main(precision, device, gpio, state_marker):
         gpio.write(False)
 
 if __name__ == "__main__":
+    # Parsing user arguments
     parser = argparse.ArgumentParser(description='Run YOLO Object Detection with specified precision and device.')
     parser.add_argument('precision', type=str,
                         choices=['FP32', 'INT8'],
@@ -326,34 +370,32 @@ if __name__ == "__main__":
                         help='Device to run the detection on (RPi, EdgeTPU, RPi-EdgeTPU, Rock, Rock-EdgeTPU)')
     args = parser.parse_args()
 
+    # Define paths and model by user args
+    results_path, model_path = working_paths(args.precision, args.device)
+        
     # Prepare monitoring
     stop_event = threading.Event()
     state_marker = Value('i', 0)  # 'i' working with integer
-    monitor_thread = threading.Thread(target=monitor_resources, args=(f'results/{args.device}_{args.precision}_resource_usage.csv', 1, stop_event, state_marker))
+    monitor_thread = threading.Thread(target=monitor_resources, args=(f'{results_path}/resource_usage.csv', 1, stop_event, state_marker))
+
+    # Prepare logging
+    setup_logging(log_path=f'{results_path}/log.txt', log_to_console=False)
+    logging.info(f"User device: {args.device}. User precision: {args.precision}")
 
     try:
+        # Start monitoring system resources
         monitor_thread.start()
-    
-        if args.device == 'RPi' or args.device == 'RPi-EdgeTPU':
-            import RPi.GPIO as GPIO
-            GPIO.setmode(GPIO.BCM) # Setup GPIO mode
-            gpio = None
-            
-        elif args.device == 'EdgeTPU' or args.device == 'Rock' or args.device == 'Rock-EdgeTPU':
-            from periphery import GPIO
-            if args.device == 'EdgeTPU':
-                gpio = GPIO("/dev/gpiochip2", 13, "out")
-            elif args.device == 'Rock' or args.device == 'Rock-EdgeTPU':
-                gpio = GPIO("/dev/gpiochip3", 15, "out")
-            
-
-        main(args.precision, args.device, gpio, state_marker)
-
+        # Configure GPIOs by device
+        gpio = set_gpio(args.device)
+        # Predict with yolo
+        main(args.precision, args.device, results_path, model_path, gpio, state_marker)
+        # End. Clean GPIOs
         if gpio is None:
             GPIO.cleanup() # Clean GPIOs after running
         else:
             gpio.close()
 
     finally:
+        # Stop monitoring
         stop_event.set()
         monitor_thread.join()
