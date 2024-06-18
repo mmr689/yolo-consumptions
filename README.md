@@ -104,7 +104,7 @@ tf int8 quant
     <tr>
         <td>Coral USB Accelerator + RPi3B+</td>
         <td >➖</td>
-        <td></td>
+        <td>✔️</td>
     </tr>
     <tr>
         <td>Coral USB Accelerator + RPi4B+</td>
