@@ -88,8 +88,8 @@ tf int8 quant
     </tr>
     <tr>
         <td>RPi3B+</td>
-        <td></td>
-        <td></td>
+        <td>✔️</td>
+        <td>✔️</td>
     </tr>
     <tr>
         <td>RPi4B+</td>
