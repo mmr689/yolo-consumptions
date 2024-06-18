@@ -23,17 +23,31 @@ import numpy as np  # Mathematical operations and multi-dimensional arrays
 from tflite_runtime.interpreter import Interpreter  # Interpreter for TFLite models
 
 def get_rpi_version():
+    """
+    Retrieve the version of the Raspberry Pi.
+
+    This function reads the model information from the file '/proc/device-tree/model',
+    which contains a string describing the model of the Raspberry Pi. If the model is
+    known, it returns a simplified string. Otherwise, it returns
+    the model information with spaces replaced by underscores. If the file is not found,
+    it returns a message indicating that the model cannot be determined.
+
+    Returns:
+        str: The Raspberry Pi version or an error message.
+    """
     try:
         with open("/proc/device-tree/model", "r") as file:
             model_info = file.read().strip()
 
         if 'Raspberry Pi 4 Model B' in model_info:
-            return 'RPi4B'
+            version = 'RPi4B'
         
         else:
-            return model_info.replace(' ', '_')
+            version = model_info.replace(' ', '_')
     except FileNotFoundError:
-        return "Cannot determine Raspberry Pi model."
+        version = 'unknown_rpi'
+
+    return version
 
 def working_paths(precision, device):
     """
