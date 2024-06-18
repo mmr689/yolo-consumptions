@@ -71,9 +71,9 @@ def set_gpio(device):
         GPIO object or None: Configured GPIO interface or None if using RPi GPIO.
     """
     if device == 'RPi' or device == 'RPi-EdgeTPU':
-        import RPi.GPIO as GPIO
-        GPIO.setmode(GPIO.BCM) # Setup GPIO mode
-        gpio = None
+        import RPi.GPIO as gpio
+        gpio.setmode(gpio.BCM) # Setup GPIO mode
+        gpio_flag = True
         
     elif device == 'EdgeTPU' or device == 'Rock' or device == 'Rock-EdgeTPU':
         from periphery import GPIO
@@ -81,8 +81,9 @@ def set_gpio(device):
             gpio = GPIO("/dev/gpiochip2", 13, "out")
         elif device == 'Rock' or device == 'Rock-EdgeTPU':
             gpio = GPIO("/dev/gpiochip3", 15, "out")
+        gpio_flag = False
     
-    return gpio
+    return gpio, gpio_flag
 
 def monitor_resources(csv_file_path, interval=1, stop_event=threading.Event(), state_marker=0):
     """
@@ -167,7 +168,7 @@ def setup_logging(log_path, log_to_console=True):
         handlers=handlers
     )
 
-def load_model(model_path, device, gpio):
+def load_model(model_path, device, gpio, gpio_flag):
     """
     Load a YOLO model from a specified path and measure load time.
     
@@ -175,12 +176,13 @@ def load_model(model_path, device, gpio):
         model_path (str): File path of the YOLO model.
         device (str): Device we are going to use. Can be RPi, Rock, EdgeTPU, RPi-EdgeTPU, Rock-EdgeTPU
         gpio: GPIO interface for controlling hardware signals. Can be None or a GPIO object.
+        gpio_flag: (bool) Flag between RPi.GPIO and python-periphery libraries.
 
     Returns:
         tuple: (model, load_time) where model is the loaded YOLO model, and load_time is the time taken to load the model in seconds.
     """
-    if gpio is None:
-        GPIO.output(17, GPIO.HIGH) # Signal GPIO pin before loading model.
+    if gpio_flag:
+        gpio.output(17, gpio.HIGH) # Signal GPIO pin before loading model.
     else:
         gpio.write(True)
     start_time = time.time()
@@ -200,14 +202,14 @@ def load_model(model_path, device, gpio):
                 experimental_delegates=[load_delegate('/usr/lib/aarch64-linux-gnu/libedgetpu.so.1', options={'device': 'usb'})])
     model.allocate_tensors()
     end_time = time.time()
-    if gpio is None:
-        GPIO.output(17, GPIO.LOW) # Signal GPIO pin after loading model.
+    if gpio_flag:
+        gpio.output(17, gpio.LOW) # Signal GPIO pin after loading model.
     else:
         gpio.write(False)
     logging.info(f"Model loaded in {end_time - start_time} seconds.")
     return model, end_time - start_time
 
-def process_images(model, imgs_path, results_path, precision, gpio, bb_conf=0.5):
+def process_images(model, imgs_path, results_path, precision, gpio, gpio_flag, bb_conf=0.5):
     """
     Process images for object detection and measure processing time.
 
@@ -217,6 +219,7 @@ def process_images(model, imgs_path, results_path, precision, gpio, bb_conf=0.5)
         results_path (str): Directory containing images results.
         precision (str): Model precision. Can be FP32 or INT8.
         gpio: GPIO interface for controlling hardware signals. Can be None or a GPIO object.
+        gpio_flag: (bool) Flag between RPi.GPIO and python-periphery libraries.
         bb_conf (float): Confidence threshold for bounding box predictions.
 
     Returns:
@@ -249,8 +252,8 @@ def process_images(model, imgs_path, results_path, precision, gpio, bb_conf=0.5)
             img_batch = np.expand_dims(img_norm, axis=0)
             
             # Predict
-            if gpio is None:
-                GPIO.output(17, GPIO.HIGH) # Signal GPIO pin before prediction.
+            if gpio_flag:
+                gpio.output(17, gpio.HIGH) # Signal GPIO pin before prediction.
             else:
                 gpio.write(True)
             start_time = time.time()
@@ -258,8 +261,8 @@ def process_images(model, imgs_path, results_path, precision, gpio, bb_conf=0.5)
             model.invoke()
             results = model.get_tensor(output_details[0]['index'])
             end_time = time.time()
-            if gpio is None:
-                GPIO.output(17, GPIO.LOW) # Signal GPIO pin after prediction.
+            if gpio_flag:
+                gpio.output(17, gpio.LOW) # Signal GPIO pin after prediction.
             else:
                 gpio.write(False)
             image_timings.append({filename: end_time - start_time})
@@ -308,7 +311,7 @@ def process_images(model, imgs_path, results_path, precision, gpio, bb_conf=0.5)
 
     return image_timings
 
-def main(precision, device, results_path, model, gpio, state_marker):
+def main(precision, device, results_path, model, gpio, gpio_flag, state_marker):
     """
     Main function to initialize logging, load the model, and process images.
     
@@ -318,6 +321,7 @@ def main(precision, device, results_path, model, gpio, state_marker):
         results_path (str): Path to save the results and timings.
         model (str): Path to the model to be loaded.
         gpio: GPIO interface for controlling hardware signals. Can be None or a GPIO object.
+        gpio_flag: (bool) Flag between RPi.GPIO and python-periphery libraries.
         state_marker (multiprocessing.Value): Shared integer used for tracking the state of the process.
             - 0: Initial state.
             - 1: Model loaded.
@@ -326,9 +330,9 @@ def main(precision, device, results_path, model, gpio, state_marker):
     """
     # Starting oscilloscope flag
     state_marker.value = 0
-    if gpio is None:
-        GPIO.setup(17, GPIO.OUT)
-        GPIO.output(17, GPIO.LOW)
+    if gpio_flag:
+        gpio.setup(17, gpio.OUT)
+        gpio.output(17, gpio.LOW)
     else:
         gpio.write(True)
         gpio.write(False)
@@ -336,10 +340,10 @@ def main(precision, device, results_path, model, gpio, state_marker):
     # Start detection process
     start_time = time.time()
     state_marker.value = 2
-    model, model_load_time = load_model(f'final-resources/models/yolov8/{model}', device, gpio)
+    model, model_load_time = load_model(f'final-resources/models/yolov8/{model}', device, gpio, gpio_flag)
     state_marker.value = 1
     state_marker.value = 3
-    image_timings = process_images(model, 'final-resources/data/images', results_path, precision, gpio, 0.5)
+    image_timings = process_images(model, 'final-resources/data/images', results_path, precision, gpio, gpio_flag, 0.5)
     state_marker.value = 1
     total_time = time.time() - start_time
     timings = {
@@ -354,8 +358,8 @@ def main(precision, device, results_path, model, gpio, state_marker):
     logging.info(f"END script in {total_time} seconds.")
 
     # Ending oscilloscope flag
-    if gpio is None:
-        GPIO.output(17, GPIO.LOW)
+    if gpio_flag:
+        gpio.output(17, gpio.LOW)
     else:
         gpio.write(False)
 
@@ -386,12 +390,12 @@ if __name__ == "__main__":
         # Start monitoring system resources
         monitor_thread.start()
         # Configure GPIOs by device
-        gpio = set_gpio(args.device)
+        gpio, gpio_flag = set_gpio(args.device)
         # Predict with yolo
-        main(args.precision, args.device, results_path, model_path, gpio, state_marker)
+        main(args.precision, args.device, results_path, model_path, gpio, gpio_flag, state_marker)
         # End. Clean GPIOs
-        if gpio is None:
-            GPIO.cleanup() # Clean GPIOs after running
+        if gpio_flag:
+            gpio.cleanup() # Clean GPIOs after running
         else:
             gpio.close()
 
