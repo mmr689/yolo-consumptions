@@ -1,0 +1,13 @@
+2024-06-18 09:35:56,690 - INFO - User device: Rock-EdgeTPU. User precision: INT8
+2024-06-18 09:36:01,921 - INFO - Model loaded in 5.2128825187683105 seconds.
+2024-06-18 09:36:03,355 - INFO - Processed img_20221225_024503.jpg and saved to results/yolov8_INT8_TFLite_Rock-USBCoral/img_20221225_024503.jpg
+2024-06-18 09:36:04,601 - INFO - Processed img_20230103_234504.jpg and saved to results/yolov8_INT8_TFLite_Rock-USBCoral/img_20230103_234504.jpg
+2024-06-18 09:36:05,907 - INFO - Processed img_20230109_050005.jpg and saved to results/yolov8_INT8_TFLite_Rock-USBCoral/img_20230109_050005.jpg
+2024-06-18 09:36:07,290 - INFO - Processed img_20230104_200004.jpg and saved to results/yolov8_INT8_TFLite_Rock-USBCoral/img_20230104_200004.jpg
+2024-06-18 09:36:08,592 - INFO - Processed img_20230104_021503.jpg and saved to results/yolov8_INT8_TFLite_Rock-USBCoral/img_20230104_021503.jpg
+2024-06-18 09:36:09,846 - INFO - Processed img_20230108_234503.jpg and saved to results/yolov8_INT8_TFLite_Rock-USBCoral/img_20230108_234503.jpg
+2024-06-18 09:36:11,059 - INFO - Processed img_20230106_200005.jpg and saved to results/yolov8_INT8_TFLite_Rock-USBCoral/img_20230106_200005.jpg
+2024-06-18 09:36:12,309 - INFO - Processed img_20230109_054503.jpg and saved to results/yolov8_INT8_TFLite_Rock-USBCoral/img_20230109_054503.jpg
+2024-06-18 09:36:13,542 - INFO - Processed img_20230107_184503.jpg and saved to results/yolov8_INT8_TFLite_Rock-USBCoral/img_20230107_184503.jpg
+2024-06-18 09:36:14,863 - INFO - Processed img_20221228_213004.jpg and saved to results/yolov8_INT8_TFLite_Rock-USBCoral/img_20221228_213004.jpg
+2024-06-18 09:36:14,885 - INFO - END script in 18.17611789703369 seconds.
