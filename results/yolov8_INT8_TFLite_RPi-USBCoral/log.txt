@@ -1,13 +1,13 @@
-2024-06-14 13:12:45,653 - INFO - User device: USB-EdgeTPU. User precision: INT8
-2024-06-14 13:12:48,342 - INFO - Model loaded in 2.688697576522827 seconds.
-2024-06-14 13:12:49,382 - INFO - Processed img_20230109_050005.jpg and saved to results/yolov8_INT8_TFLite_RPi-USBCoral/img_20230109_050005.jpg
-2024-06-14 13:12:50,369 - INFO - Processed img_20230103_234504.jpg and saved to results/yolov8_INT8_TFLite_RPi-USBCoral/img_20230103_234504.jpg
-2024-06-14 13:12:51,363 - INFO - Processed img_20230109_054503.jpg and saved to results/yolov8_INT8_TFLite_RPi-USBCoral/img_20230109_054503.jpg
-2024-06-14 13:12:52,344 - INFO - Processed img_20230104_200004.jpg and saved to results/yolov8_INT8_TFLite_RPi-USBCoral/img_20230104_200004.jpg
-2024-06-14 13:12:53,334 - INFO - Processed img_20221228_213004.jpg and saved to results/yolov8_INT8_TFLite_RPi-USBCoral/img_20221228_213004.jpg
-2024-06-14 13:12:54,339 - INFO - Processed img_20221225_024503.jpg and saved to results/yolov8_INT8_TFLite_RPi-USBCoral/img_20221225_024503.jpg
-2024-06-14 13:12:55,313 - INFO - Processed img_20230104_021503.jpg and saved to results/yolov8_INT8_TFLite_RPi-USBCoral/img_20230104_021503.jpg
-2024-06-14 13:12:56,303 - INFO - Processed img_20230107_184503.jpg and saved to results/yolov8_INT8_TFLite_RPi-USBCoral/img_20230107_184503.jpg
-2024-06-14 13:12:57,286 - INFO - Processed img_20230106_200005.jpg and saved to results/yolov8_INT8_TFLite_RPi-USBCoral/img_20230106_200005.jpg
-2024-06-14 13:12:58,273 - INFO - Processed img_20230108_234503.jpg and saved to results/yolov8_INT8_TFLite_RPi-USBCoral/img_20230108_234503.jpg
-2024-06-14 13:12:58,284 - INFO - END script in 12.629983186721802 seconds.
+2024-06-18 12:39:25,884 - INFO - User device: RPi-EdgeTPU. User precision: INT8
+2024-06-18 12:39:29,918 - INFO - Model loaded in 4.030959129333496 seconds.
+2024-06-18 12:39:30,956 - INFO - Processed img_20230109_050005.jpg and saved to results/yolov8_INT8_TFLite_RPi-USBCoral/img_20230109_050005.jpg
+2024-06-18 12:39:31,941 - INFO - Processed img_20230103_234504.jpg and saved to results/yolov8_INT8_TFLite_RPi-USBCoral/img_20230103_234504.jpg
+2024-06-18 12:39:32,944 - INFO - Processed img_20230109_054503.jpg and saved to results/yolov8_INT8_TFLite_RPi-USBCoral/img_20230109_054503.jpg
+2024-06-18 12:39:33,926 - INFO - Processed img_20230104_200004.jpg and saved to results/yolov8_INT8_TFLite_RPi-USBCoral/img_20230104_200004.jpg
+2024-06-18 12:39:34,937 - INFO - Processed img_20221228_213004.jpg and saved to results/yolov8_INT8_TFLite_RPi-USBCoral/img_20221228_213004.jpg
+2024-06-18 12:39:35,948 - INFO - Processed img_20221225_024503.jpg and saved to results/yolov8_INT8_TFLite_RPi-USBCoral/img_20221225_024503.jpg
+2024-06-18 12:39:36,938 - INFO - Processed img_20230104_021503.jpg and saved to results/yolov8_INT8_TFLite_RPi-USBCoral/img_20230104_021503.jpg
+2024-06-18 12:39:37,933 - INFO - Processed img_20230107_184503.jpg and saved to results/yolov8_INT8_TFLite_RPi-USBCoral/img_20230107_184503.jpg
+2024-06-18 12:39:38,916 - INFO - Processed img_20230106_200005.jpg and saved to results/yolov8_INT8_TFLite_RPi-USBCoral/img_20230106_200005.jpg
+2024-06-18 12:39:39,905 - INFO - Processed img_20230108_234503.jpg and saved to results/yolov8_INT8_TFLite_RPi-USBCoral/img_20230108_234503.jpg
+2024-06-18 12:39:39,916 - INFO - END script in 14.028629302978516 seconds.
