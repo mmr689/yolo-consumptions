@@ -87,32 +87,32 @@ tf int8 quant
         <th>INT8</th>
     </tr>
     <tr>
-        <td>RPi3B+</td>
+        <td>RPi3B</td>
         <td>✔️</td>
         <td>✔️</td>
     </tr>
     <tr>
-        <td>RPi4B+</td>
+        <td>RPi4B</td>
         <td>✔️</td>
         <td>✔️</td>
     </tr>
     <tr>
-        <td>RPi5</td>
+        <td>RPi5B</td>
         <td></td>
         <td></td>
     </tr>
     <tr>
-        <td>Coral USB Accelerator + RPi3B+</td>
+        <td>Coral USB Accelerator + RPi3B</td>
         <td >➖</td>
         <td>✔️</td>
     </tr>
     <tr>
-        <td>Coral USB Accelerator + RPi4B+</td>
+        <td>Coral USB Accelerator + RPi4B</td>
         <td >➖</td>
         <td>✔️</td>
     </tr>
     <tr>
-        <td>Coral USB Accelerator + RPi5</td>
+        <td>Coral USB Accelerator + RPi5B</td>
         <td >➖</td>
         <td></td>
     </tr>
