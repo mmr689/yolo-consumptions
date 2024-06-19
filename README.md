@@ -254,3 +254,12 @@ tf int8 quant
         </tr>
     </tbody>
 </table>
+
+<h3>Conclusions</h3>
+<ul>
+    <li><strong>Model Load Time:</strong> The devices show varied model load times, with USB Coral equipped devices generally having longer load times due to additional initializations required for the accelerators.</li>
+    <li><strong>Image Prediction Performance:</strong> INT8 and FP16 models generally provide faster image prediction times compared to FP32, demonstrating the efficiency of using quantized models for faster inference without significant loss of accuracy.</li>
+    <li><strong>Total Execution Time:</strong> Devices using lower precision types (INT8, FP16) tend to have shorter total execution times, illustrating their suitability for applications requiring high efficiency and rapid processing.</li>
+    <li><strong>Impact of Hardware Accelerators:</strong> The addition of USB Coral significantly improves performance, especially notable in devices like the RPi4B-USBCoral, which shows one of the shortest total execution times and the fastest average image prediction times across all configurations.</li>
+    <li><strong>Hardware Capabilities:</strong> Newer and more advanced devices (e.g., Rock4Plus and DevBoard) perform consistently well across different precision types, suggesting that hardware upgrades can effectively boost performance for demanding AI tasks.</li>
+</ul>
