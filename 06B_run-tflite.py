@@ -58,7 +58,7 @@ def working_paths(precision, device):
     Determine and create the working paths and model paths based on the model precision and device.
 
     Args:
-        precision (str): Model precision. Can be 'FP32' or 'INT8'.
+        precision (str): Model precision. Can be 'FP32', 'FP16' or 'INT8'.
         device (str): Device to be used. Options are 'RPi', 'Rock', 'EdgeTPU', 'RPi-EdgeTPU', and 'Rock-EdgeTPU'.
 
     Returns:
@@ -251,7 +251,7 @@ def process_images(model, imgs_path, results_path, precision, gpio, gpio_flag, b
         model: Loaded TFLite model interpreter.
         imgs_path (str): Directory containing images to process.
         results_path (str): Directory containing images results.
-        precision (str): Model precision. Can be FP32 or INT8.
+        precision (str): Model precision. Can be 'FP32', 'FP16' or 'INT8'.
         gpio: GPIO interface for controlling hardware signals. Can be None or a GPIO object.
         gpio_flag: (bool) Flag between RPi.GPIO and python-periphery libraries.
         bb_conf (float): Confidence threshold for bounding box predictions.
@@ -353,7 +353,7 @@ def main(precision, device, results_path, model, gpio, gpio_flag, state_marker):
     Main function to initialize logging, load the model, and process images.
     
     Args:
-        precision (str): Model precision. Can be 'FP32' or 'INT8'.
+        precision (str): Model precision. Can be 'FP32', 'FP16' or 'INT8'.
         device (str): Device to be used for running the model. Options are 'RPi', 'Rock', 'EdgeTPU', 'RPi-EdgeTPU', and 'Rock-EdgeTPU'.
         results_path (str): Path to save the results and timings.
         model (str): Path to the model to be loaded.
