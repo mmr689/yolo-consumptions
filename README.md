@@ -102,7 +102,7 @@ tf int8 quant
     <tr>
         <td>RPi5B</td>
         <td></td>
-        <td>➖</td>
+        <td></td>
         <td></td>
     </tr>
     <tr>
