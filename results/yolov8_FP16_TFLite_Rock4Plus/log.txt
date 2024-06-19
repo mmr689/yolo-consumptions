@@ -1,0 +1,13 @@
+2024-06-19 17:51:56,124 - INFO - User device: Rock. User precision: FP16
+2024-06-19 17:51:56,236 - INFO - Model loaded in 0.09302496910095215 seconds.
+2024-06-19 17:51:58,493 - INFO - Processed img_20221225_024503.jpg and saved to results/yolov8_FP16_TFLite_Rock4Plus/img_20221225_024503.jpg
+2024-06-19 17:52:00,672 - INFO - Processed img_20230103_234504.jpg and saved to results/yolov8_FP16_TFLite_Rock4Plus/img_20230103_234504.jpg
+2024-06-19 17:52:02,856 - INFO - Processed img_20230109_050005.jpg and saved to results/yolov8_FP16_TFLite_Rock4Plus/img_20230109_050005.jpg
+2024-06-19 17:52:05,025 - INFO - Processed img_20230104_200004.jpg and saved to results/yolov8_FP16_TFLite_Rock4Plus/img_20230104_200004.jpg
+2024-06-19 17:52:07,187 - INFO - Processed img_20230104_021503.jpg and saved to results/yolov8_FP16_TFLite_Rock4Plus/img_20230104_021503.jpg
+2024-06-19 17:52:09,334 - INFO - Processed img_20230108_234503.jpg and saved to results/yolov8_FP16_TFLite_Rock4Plus/img_20230108_234503.jpg
+2024-06-19 17:52:11,511 - INFO - Processed img_20230106_200005.jpg and saved to results/yolov8_FP16_TFLite_Rock4Plus/img_20230106_200005.jpg
+2024-06-19 17:52:13,688 - INFO - Processed img_20230109_054503.jpg and saved to results/yolov8_FP16_TFLite_Rock4Plus/img_20230109_054503.jpg
+2024-06-19 17:52:15,868 - INFO - Processed img_20230107_184503.jpg and saved to results/yolov8_FP16_TFLite_Rock4Plus/img_20230107_184503.jpg
+2024-06-19 17:52:18,045 - INFO - Processed img_20221228_213004.jpg and saved to results/yolov8_FP16_TFLite_Rock4Plus/img_20221228_213004.jpg
+2024-06-19 17:52:18,066 - INFO - END script in 21.921890258789062 seconds.

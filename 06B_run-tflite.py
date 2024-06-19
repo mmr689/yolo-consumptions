@@ -65,12 +65,15 @@ def working_paths(precision, device):
         tuple: A tuple containing the results path and model path.
     """
     work_path = f'yolov8_{precision}_TFLite'
-    if precision == 'FP32':
+    if precision == 'FP32' or 'FP16':
         if device == 'RPi':
             work_path += f'_{get_rpi_version()}'
         elif device == 'Rock':
             work_path += '_Rock4Plus'
-        model_path = 'best_float32.tflite'
+        if precision == 'FP32':
+            model_path = 'best_float32.tflite'
+        else:
+            model_path = 'best_float16.tflite'
     elif precision == 'INT8' and (device == 'RPi' or device == 'Rock'):
         if device == 'RPi':
             work_path += f'_{get_rpi_version()}'
@@ -276,8 +279,11 @@ def process_images(model, imgs_path, results_path, precision, gpio, gpio_flag, b
             # Adapt image
             img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img_resized = cv2.resize(img_rgb, (model_width, model_height))
-            if precision == 'FP32':
+            if precision == 'FP32' or 'FP16':
                 img_norm = img_resized.astype(np.float32) / 255.0
+            # elif precision == 'FP16':
+            #     print('heey')
+            #     img_norm = img_resized.astype(np.float16) / 255.0
             elif precision == 'INT8':
                 img_norm = img_resized.astype(np.int8)
             img_batch = np.expand_dims(img_norm, axis=0)
@@ -301,7 +307,7 @@ def process_images(model, imgs_path, results_path, precision, gpio, gpio_flag, b
             bb_dict = {}
             for i in range(output_details[0]['shape'][2]):
                 confs = results[0][4:, i].flatten()
-                if precision == 'FP32':
+                if precision == 'FP32' or 'FP16':
                     conf, label = np.max(confs), np.argmax(confs)
                 elif precision == 'INT8':
                     conf, label = (np.max(confs)+128)/255, np.argmax(confs)
@@ -398,8 +404,8 @@ if __name__ == "__main__":
     # Parsing user arguments
     parser = argparse.ArgumentParser(description='Run YOLO Object Detection with specified precision and device.')
     parser.add_argument('precision', type=str,
-                        choices=['FP32', 'INT8'],
-                        help='Precision of the model (FP32 or INT8)')
+                        choices=['FP32', 'FP16', 'INT8'],
+                        help='Precision of the model (FP32, FP16 or INT8)')
     parser.add_argument('device', type=str,
                         choices=['RPi', 'EdgeTPU', 'RPi-EdgeTPU', 'Rock', 'Rock-EdgeTPU'],
                         help='Device to run the detection on (RPi, EdgeTPU, RPi-EdgeTPU, Rock, Rock-EdgeTPU)')
