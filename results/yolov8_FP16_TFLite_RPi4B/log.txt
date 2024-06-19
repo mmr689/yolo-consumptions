@@ -1,0 +1,13 @@
+2024-06-19 21:16:46,057 - INFO - User device: RPi. User precision: FP16
+2024-06-19 21:16:46,401 - INFO - Model loaded in 0.3353691101074219 seconds.
+2024-06-19 21:16:48,376 - INFO - Processed img_20230109_050005.jpg and saved to results/yolov8_FP16_TFLite_RPi4B/img_20230109_050005.jpg
+2024-06-19 21:16:50,191 - INFO - Processed img_20230103_234504.jpg and saved to results/yolov8_FP16_TFLite_RPi4B/img_20230103_234504.jpg
+2024-06-19 21:16:51,969 - INFO - Processed img_20230109_054503.jpg and saved to results/yolov8_FP16_TFLite_RPi4B/img_20230109_054503.jpg
+2024-06-19 21:16:53,747 - INFO - Processed img_20230104_200004.jpg and saved to results/yolov8_FP16_TFLite_RPi4B/img_20230104_200004.jpg
+2024-06-19 21:16:55,561 - INFO - Processed img_20221228_213004.jpg and saved to results/yolov8_FP16_TFLite_RPi4B/img_20221228_213004.jpg
+2024-06-19 21:16:57,384 - INFO - Processed img_20221225_024503.jpg and saved to results/yolov8_FP16_TFLite_RPi4B/img_20221225_024503.jpg
+2024-06-19 21:16:59,163 - INFO - Processed img_20230104_021503.jpg and saved to results/yolov8_FP16_TFLite_RPi4B/img_20230104_021503.jpg
+2024-06-19 21:17:00,939 - INFO - Processed img_20230107_184503.jpg and saved to results/yolov8_FP16_TFLite_RPi4B/img_20230107_184503.jpg
+2024-06-19 21:17:02,751 - INFO - Processed img_20230106_200005.jpg and saved to results/yolov8_FP16_TFLite_RPi4B/img_20230106_200005.jpg
+2024-06-19 21:17:04,530 - INFO - Processed img_20230108_234503.jpg and saved to results/yolov8_FP16_TFLite_RPi4B/img_20230108_234503.jpg
+2024-06-19 21:17:04,539 - INFO - END script in 18.47353768348694 seconds.
