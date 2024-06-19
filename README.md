@@ -148,3 +148,109 @@ tf int8 quant
         <td>✔️</td>
     </tr>
 </table>
+
+<h2>Comprehensive performance comparison across different device configurations and precision types</h2>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Device</th>
+            <th>Model Type</th>
+            <th>Model Load Time (s)</th>
+            <th>Average Image Prediction Time (s)</th>
+            <th>Total Execution Time (s)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Rock4Plus (FP32)</td>
+            <td>FP32</td>
+            <td>0.413</td>
+            <td>1.062</td>
+            <td>22.077</td>
+        </tr>
+        <tr>
+            <td>RPi4B (FP32)</td>
+            <td>FP32</td>
+            <td>0.404</td>
+            <td>1.065</td>
+            <td>21.053</td>
+        </tr>
+        <tr>
+            <td>RPi3B (FP32)</td>
+            <td>FP32</td>
+            <td>0.937</td>
+            <td>4.099</td>
+            <td>85.388</td>
+        </tr>
+        <tr>
+            <td>Rock4Plus (INT8)</td>
+            <td>INT8</td>
+            <td>0.069</td>
+            <td>0.754</td>
+            <td>18.930</td>
+        </tr>
+        <tr>
+            <td>RPi4B (INT8)</td>
+            <td>INT8</td>
+            <td>0.080</td>
+            <td>0.667</td>
+            <td>15.894</td>
+        </tr>
+        <tr>
+            <td>RPi3B (INT8)</td>
+            <td>INT8</td>
+            <td>0.151</td>
+            <td>3.100</td>
+            <td>60.622</td>
+        </tr>
+        <tr>
+            <td>DevBoard (INT8)</td>
+            <td>INT8</td>
+            <td>0.056</td>
+            <td>0.105</td>
+            <td>16.034</td>
+        </tr>
+        <tr>
+            <td>Rock-USBCoral (INT8)</td>
+            <td>INT8 + Coral</td>
+            <td>5.213</td>
+            <td>0.115</td>
+            <td>18.176</td>
+        </tr>
+        <tr>
+            <td>RPi4B-USBCoral (INT8)</td>
+            <td>INT8 + Coral</td>
+            <td>2.671</td>
+            <td>0.084</td>
+            <td>12.583</td>
+        </tr>
+        <tr>
+            <td>RPi3B-USBCoral (INT8)</td>
+            <td>INT8 + Coral</td>
+            <td>4.641</td>
+            <td>0.529</td>
+            <td>49.029</td>
+        </tr>
+        <tr>
+            <td>Rock4Plus (FP16)</td>
+            <td>FP16</td>
+            <td>0.093</td>
+            <td>1.078</td>
+            <td>21.922</td>
+        </tr>
+        <tr>
+            <td>RPi4B (FP16)</td>
+            <td>FP16</td>
+            <td>0.335</td>
+            <td>0.925</td>
+            <td>18.474</td>
+        </tr>
+        <tr>
+            <td>RPi3B (FP16)</td>
+            <td>FP16</td>
+            <td>0.749</td>
+            <td>3.203</td>
+            <td>82.481</td>
+        </tr>
+    </tbody>
+</table>
