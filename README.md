@@ -56,6 +56,9 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/aarch64-linux-gnu
 
 NO SE EL PASO PERO CONVIENE REINICIAR
 
+# Ejecutar
+- `python 06B_run-tflite.py FP32 Server`
+- `python 06B_run-tflite.py FP32 Server --save_img True`
 
 # Marcas temporales (GPIOs/timer)
 

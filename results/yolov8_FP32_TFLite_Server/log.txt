@@ -1,0 +1,3 @@
+2024-06-29 11:21:35,400 - INFO - User device: Server. User precision: FP32. Using GPIO pin: None
+2024-06-29 11:21:35,443 - INFO - Model loaded in 0.04217195510864258 seconds.
+2024-06-29 11:21:39,986 - INFO - END script in 4.585607528686523 seconds.
