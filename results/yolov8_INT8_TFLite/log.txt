@@ -1,0 +1,3 @@
+2024-06-29 09:38:58,556 - INFO - User device: Rock-EdgeTPU. User precision: INT8. Using GPIO pin: None
+2024-06-29 09:39:03,987 - INFO - Model loaded in 5.429407119750977 seconds.
+2024-06-29 09:39:23,346 - INFO - END script in 24.788076162338257 seconds.

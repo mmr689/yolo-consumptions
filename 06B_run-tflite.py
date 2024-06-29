@@ -480,7 +480,8 @@ def main(precision, device, save_img, gpio_manager, results_path, model):
     # Save data
     results['Load model'] = {'Avg CPU': avg_cpu_load_model, 'Std dev CPU':std_cpu_load_model, 'Max memory': max_memory_load_model, 'Load time': model_load_time}
     results['total execution time'] = total_time
-    with open(os.path.join(results_path, 'results.json'), 'w') as file:
+    name = results_path.split('/')[-1]
+    with open(os.path.join(results_path, f'{name}_results.json'), 'w') as file:
         json.dump(results, file, indent=4)
     logging.info(f"END script in {total_time} seconds.")
 
