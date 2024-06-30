@@ -1,0 +1,1 @@
+2024-06-30 11:35:18,381 - INFO - User device: Rock-EdgeTPU. User precision: INT8. Using GPIO pin: 15
