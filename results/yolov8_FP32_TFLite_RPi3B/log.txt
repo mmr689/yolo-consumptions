@@ -1,0 +1,3 @@
+2024-06-30 14:21:53,802 - INFO - User device: RPi. User precision: FP32. Using GPIO pin: None
+2024-06-30 14:21:54,555 - INFO - Model loaded in 0.7513773441314697 seconds.
+2024-06-30 14:22:44,390 - INFO - END script in 50.58322763442993 seconds.

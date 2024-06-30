@@ -1,0 +1,3 @@
+2024-06-30 14:22:58,132 - INFO - User device: RPi-EdgeTPU. User precision: INT8. Using GPIO pin: 17
+2024-06-30 14:23:02,806 - INFO - Model loaded in 4.651215553283691 seconds.
+2024-06-30 14:23:35,375 - INFO - END script in 37.178189277648926 seconds.
