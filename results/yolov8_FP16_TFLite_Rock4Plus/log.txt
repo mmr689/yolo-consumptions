@@ -1,3 +1,0 @@
-2024-06-29 09:37:26,821 - INFO - User device: Rock. User precision: FP16. Using GPIO pin: None
-2024-06-29 09:37:26,917 - INFO - Model loaded in 0.09519124031066895 seconds.
-2024-06-29 09:37:46,314 - INFO - END script in 19.491155862808228 seconds.

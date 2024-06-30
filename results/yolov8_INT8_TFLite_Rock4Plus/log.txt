@@ -1,3 +1,0 @@
-2024-06-29 09:38:20,622 - INFO - User device: Rock. User precision: INT8. Using GPIO pin: None
-2024-06-29 09:38:20,718 - INFO - Model loaded in 0.09504890441894531 seconds.
-2024-06-29 09:38:40,063 - INFO - END script in 19.439249992370605 seconds.
