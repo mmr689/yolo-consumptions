@@ -29,13 +29,15 @@ class GPIOManager:
     
     Attributes:
         device (str): The type of device (e.g., 'RPi', 'EdgeTPU').
-        pin (int, optional): The GPIO pin number used for signaling. None if GPIO is not used.
+        pin (int, optional): The GPIO pin number used for signaling. None if GPIO PIN is not used.
+        chip (int, optional): The GPIO chip number used for signaling. None if GPIO CHIP is not used.
         gpio (module): The GPIO library module specific to the device.
         gpio_flag (bool): Flag to determine the type of GPIO control used (True for RPi.GPIO, False for periphery).
     """
-    def __init__(self, device, pin=None):
+    def __init__(self, device, pin=None, chip=None):
         self.device = device
         self.pin = pin
+        self.chip = chip
         self.gpio = None
         self.gpio_flag = None
         if self.pin is not None:
@@ -51,7 +53,7 @@ class GPIOManager:
             self.gpio_flag = True
         elif self.device in ['EdgeTPU', 'Rock', 'Rock-EdgeTPU']:
             from periphery import GPIO
-            self.gpio = GPIO("/dev/gpiochip3", self.pin, "out")
+            self.gpio = GPIO(f"/dev/gpiochip{self.chip}", self.pin, "out")
             self.gpio_flag = False
 
     def signal_high(self):
@@ -504,7 +506,9 @@ if __name__ == "__main__":
                         choices=['Server', 'RPi', 'EdgeTPU', 'RPi-EdgeTPU', 'Rock', 'Rock-EdgeTPU'],
                         help='Device to run the detection on (Server, RPi, EdgeTPU, RPi-EdgeTPU, Rock, Rock-EdgeTPU)')
     parser.add_argument('--gpio_pin', type=int, default=None,
-                        help='Optional GPIO pin number to use for signaling. If not provided, GPIO is not used.')
+                        help='Optional GPIO pin number to use for signaling. If not provided, GPIO PIN is not used.')
+    parser.add_argument('--gpio_chip', type=int, default=None,
+                        help='Optional GPIO chip number to use for signaling. If not provided, GPIO CHIP is not used.')
     parser.add_argument('--save_img', type=bool, default=False,
                         help='Optional flag to save the image results. If not provided, False.')
     args = parser.parse_args()
@@ -525,7 +529,7 @@ if __name__ == "__main__":
         # Start monitoring system resources
         # monitor_thread.start()
         # Configure GPIOs by device
-        gpio_manager = GPIOManager(device=args.device, pin=args.gpio_pin)
+        gpio_manager = GPIOManager(device=args.device, pin=args.gpio_pin, chip=args.gpio_chip)
         # Predict with yolo
         main(args.precision, args.device, args.save_img, gpio_manager, results_path, model_path)
 
