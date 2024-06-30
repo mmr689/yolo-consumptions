@@ -1,7 +1,7 @@
 """
-Object Detection System using YOLO TFLite models (FP32 FP16 & INT8)
+Object Detection System using YOLO TFLite models (FP32, FP16 & INT8)
 
-This script configures different Raspberry Pi, Rock and Coral devices to perform object detection on a set of images using the YOLO (You Only Look Once) TFLite FP32 model.
+This script configures different Raspberry Pi, Rock and Coral devices to perform object detection on a set of images using the YOLO (You Only Look Once) TFLite model.
 It includes functions for setting up logging, monitoring resources, loading the YOLO TFLite model, processing images to detect objects,
 and saving timing data for analysis. GPIO pins are used to signal the start and end of significant operations,
 which can be monitored with an oscilloscope for debugging or performance measurement.
@@ -511,7 +511,6 @@ if __name__ == "__main__":
 
     # Define paths and model by user args
     results_path, model_path = working_paths(args.precision, args.device)
-    print(results_path)
         
     # Prepare monitoring
     # stop_event = threading.Event()
