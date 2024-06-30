@@ -179,7 +179,7 @@ def working_paths(precision, device):
         tuple: A tuple containing the results path and model path.
     """
     work_path = f'yolov8_{precision}_TFLite'
-    if precision == 'FP32' or 'FP16':
+    if precision == 'FP32' or precision == 'FP16':
         if device == 'RPi':
             work_path += f'_{get_rpi_version()}'
         elif device == 'Rock':
@@ -208,7 +208,9 @@ def working_paths(precision, device):
         else:
             work_path += '_DevBoard'
         model_path = 'best_full_integer_quant_edgetpu.tflite'
+    
     results_path = f'results/{work_path}'
+    
     
     if not os.path.exists(results_path):
         os.makedirs(results_path)
@@ -374,7 +376,7 @@ def process_images(model, imgs_path, results_path, precision, gpio_manager, moni
             # Adapt image
             img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img_resized = cv2.resize(img_rgb, (model_width, model_height))
-            if precision == 'FP32' or 'FP16':
+            if precision == 'FP32' or precision == 'FP16':
                 img_norm = img_resized.astype(np.float32) / 255.0
             elif precision == 'INT8':
                 img_norm = img_resized.astype(np.int8)
@@ -509,6 +511,7 @@ if __name__ == "__main__":
 
     # Define paths and model by user args
     results_path, model_path = working_paths(args.precision, args.device)
+    print(results_path)
         
     # Prepare monitoring
     # stop_event = threading.Event()
