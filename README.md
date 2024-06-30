@@ -89,9 +89,11 @@ tf int8 quant
         <th>FP32</th>
         <th>FP16</th>
         <th>INT8</th>
+        <th>EdgeTPU</th>
     </tr>
     <tr>
         <td>RPi3B</td>
+        <td>✔️</td>
         <td>✔️</td>
         <td>✔️</td>
         <td>✔️</td>
@@ -101,33 +103,18 @@ tf int8 quant
         <td>✔️</td>
         <td>✔️</td>
         <td>✔️</td>
+        <td>✔️</td>
     </tr>
     <tr>
         <td>RPi5B</td>
         <td></td>
         <td></td>
         <td></td>
-    </tr>
-    <tr>
-        <td>Coral USB Accelerator + RPi3B</td>
-        <td>➖</td>
-        <td>➖</td>
-        <td>✔️</td>
-    </tr>
-    <tr>
-        <td>Coral USB Accelerator + RPi4B</td>
-        <td>➖</td>
-        <td>➖</td>
-        <td>✔️</td>
-    </tr>
-    <tr>
-        <td>Coral USB Accelerator + RPi5B</td>
-        <td>➖</td>
-        <td>➖</td>
         <td></td>
     </tr>
     <tr>
         <td>Coral Dev Board</td>
+        <td>➖</td>
         <td>➖</td>
         <td>➖</td>
         <td>✔️</td>
@@ -135,22 +122,19 @@ tf int8 quant
     <tr>
         <td>Coral Dev Board Mini</td>
         <td>❌</td>
-        <td>➖</td>
         <td>❌</td>
+        <td>❌</td>
+        <td></td>
     </tr>
     <tr>
         <td>Rock4C+</td>
         <td>✔️</td>
         <td>✔️</td>
         <td>✔️</td>
-    </tr>
-    <tr>
-        <td>Coral USB Accelerator + RockC4+</td>
-        <td>➖</td>
-        <td>➖</td>
         <td>✔️</td>
     </tr>
 </table>
+
 
 <h2>Comprehensive performance comparison across different device configurations and precision types</h2>
 <table border="1">
