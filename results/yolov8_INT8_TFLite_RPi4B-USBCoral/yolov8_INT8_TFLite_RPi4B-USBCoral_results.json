@@ -255,10 +255,10 @@
                 2.0
             ]
         ],
-        "Time": 0.08441305160522461,
-        "Avg CPU": 0.0,
+        "Time": 0.09395265579223633,
+        "Avg CPU": 100.0,
         "Std dev CPU": 0.0,
-        "Max memory": 14.9
+        "Max memory": 12.8
     },
     "img_20230103_234504.jpg": {
         "Count": 2,
@@ -558,10 +558,10 @@
                 2.0
             ]
         ],
-        "Time": 0.07814955711364746,
-        "Avg CPU": 28.9,
+        "Time": 0.08132386207580566,
+        "Avg CPU": 32.8,
         "Std dev CPU": 0.0,
-        "Max memory": 15.0
+        "Max memory": 12.9
     },
     "img_20230109_054503.jpg": {
         "Count": 3,
@@ -896,10 +896,10 @@
                 2.0
             ]
         ],
-        "Time": 0.0872809886932373,
-        "Avg CPU": 29.1,
+        "Time": 0.08041810989379883,
+        "Avg CPU": 28.9,
         "Std dev CPU": 0.0,
-        "Max memory": 15.0
+        "Max memory": 12.8
     },
     "img_20230104_200004.jpg": {
         "Count": 4,
@@ -1185,10 +1185,10 @@
                 2.0
             ]
         ],
-        "Time": 0.07771563529968262,
-        "Avg CPU": 29.3,
+        "Time": 0.08043432235717773,
+        "Avg CPU": 28.8,
         "Std dev CPU": 0.0,
-        "Max memory": 15.0
+        "Max memory": 12.9
     },
     "img_20221228_213004.jpg": {
         "Count": 5,
@@ -1474,10 +1474,10 @@
                 2.0
             ]
         ],
-        "Time": 0.07796216011047363,
-        "Avg CPU": 28.7,
+        "Time": 0.08049941062927246,
+        "Avg CPU": 29.4,
         "Std dev CPU": 0.0,
-        "Max memory": 15.0
+        "Max memory": 12.9
     },
     "img_20221225_024503.jpg": {
         "Count": 6,
@@ -1777,10 +1777,10 @@
                 2.0
             ]
         ],
-        "Time": 0.07768654823303223,
-        "Avg CPU": 28.7,
+        "Time": 0.08028149604797363,
+        "Avg CPU": 29.0,
         "Std dev CPU": 0.0,
-        "Max memory": 15.0
+        "Max memory": 12.9
     },
     "img_20230104_021503.jpg": {
         "Count": 7,
@@ -2003,10 +2003,10 @@
                 2.0
             ]
         ],
-        "Time": 0.07772374153137207,
-        "Avg CPU": 29.6,
+        "Time": 0.0814046859741211,
+        "Avg CPU": 28.5,
         "Std dev CPU": 0.0,
-        "Max memory": 15.0
+        "Max memory": 12.9
     },
     "img_20230107_184503.jpg": {
         "Count": 8,
@@ -2327,10 +2327,10 @@
                 2.0
             ]
         ],
-        "Time": 0.07779431343078613,
-        "Avg CPU": 28.7,
+        "Time": 0.08363032341003418,
+        "Avg CPU": 32.1,
         "Std dev CPU": 0.0,
-        "Max memory": 15.0
+        "Max memory": 12.9
     },
     "img_20230106_200005.jpg": {
         "Count": 9,
@@ -2588,10 +2588,10 @@
                 2.0
             ]
         ],
-        "Time": 0.07776236534118652,
-        "Avg CPU": 28.6,
+        "Time": 0.07792472839355469,
+        "Avg CPU": 29.0,
         "Std dev CPU": 0.0,
-        "Max memory": 15.0
+        "Max memory": 12.9
     },
     "img_20230108_234503.jpg": {
         "Count": 10,
@@ -2933,16 +2933,16 @@
                 2.0
             ]
         ],
-        "Time": 0.07766532897949219,
-        "Avg CPU": 28.1,
+        "Time": 0.07771587371826172,
+        "Avg CPU": 29.0,
         "Std dev CPU": 0.0,
-        "Max memory": 15.0
+        "Max memory": 12.9
     },
     "Load model": {
         "Avg CPU": 0.0,
         "Std dev CPU": 0.0,
-        "Max memory": 13.6,
-        "Load time": 2.6696746349334717
+        "Max memory": 11.5,
+        "Load time": 2.6865336894989014
     },
-    "total execution time": 10.263921976089478
+    "total execution time": 10.36008882522583
 }
