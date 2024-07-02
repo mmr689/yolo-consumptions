@@ -124,7 +124,7 @@ class ResourceMonitor:
         self.thread.join()
 
     def get_cpu_statistics(self):
-        """Return the average and standard deviation of CPU usage."""
+        """Return the average and standard deviation of CPU usage in %."""
         if not self.cpu_usages:
             return None, None
         avg_cpu = mean(self.cpu_usages)
@@ -132,7 +132,7 @@ class ResourceMonitor:
         return avg_cpu, std_cpu
 
     def get_memory_statistics(self):
-        """Return the maximum memory usage."""
+        """Return the maximum memory usage in %."""
         if not self.memory_usages:
             return None
         max_memory = max(self.memory_usages)
