@@ -316,17 +316,47 @@ def predict():
             final_detections[filename] = nms_filtered_dict
 
             # Draw the final bounding boxes on the image
-            final_img = draw_bounding_boxes_on_image(img, nms_filtered_dict)
+            # final_img = draw_bounding_boxes_on_image(img, nms_filtered_dict)
 
-            # Save the final annotated image
-            save_path = os.path.join(results_path, filename)
-            cv2.imwrite(save_path, final_img)
+            # # Save the final annotated image
+            # save_path = os.path.join(results_path, filename)
+            # cv2.imwrite(save_path, final_img)
 
     return final_detections
 
+def txt_to_dict(filepath):
+    """
+    Read a .txt file containing object detections and convert it into a dictionary.
+    Each line in the file should contain: label, x, y, w, h.
+
+    Args:
+        filepath (str): The path to the .txt file.
+
+    Returns:
+        dict: A dictionary with labels as keys and lists of coordinates as values.
+    """
+    detections_dict = {}
+    with open(filepath, 'r') as file:
+        for line in file:
+            parts = line.strip().split()
+            if len(parts) == 5:
+                label = int(parts[0])  # Convert label to integer
+                coordinates = list(map(float, parts[1:]))  # Convert x, y, w, h to floats
+
+                if label in detections_dict:
+                    detections_dict[label].append(coordinates)
+                else:
+                    detections_dict[label] = [coordinates]
+            else:
+                print("Warning: Line format incorrect ->", line)
+
+    return detections_dict
+
 
 def validate(detections):
-    imgs_path = 'final-resources/data/images'
+    """
+    por ahora leo predicciones y obtengo datos de la label gt.
+    """
     labels_path = 'final-resources/data/labels'
 
     for img, value in detections.items():
@@ -336,6 +366,8 @@ def validate(detections):
         if os.path.exists(txt_file_path):
             print(f"El archivo .txt encontrado: {txt_file_path}")
             # Aquí puedes abrir y leer el archivo, o lo que necesites hacer con él
+            detections_dict = txt_to_dict(txt_file_path)
+            print(detections_dict)
         else:
             print(f"No se encontró el archivo .txt para {img}")
     
