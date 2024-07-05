@@ -3,6 +3,7 @@
 .rpi_tensorflow_venv/
 .rock_tensorflow_venv/
 .rock_ultralytics_venv/
+.mmr689-laptop-venv/
 
 __pycache__/
 
