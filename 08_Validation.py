@@ -281,11 +281,10 @@ class TFLiteModel:
         conf, label = np.max(confs), np.argmax(confs)
         return coords, conf, label
 
-def predict():
-    model_path = 'final-resources/models/yolov8/best_float32.tflite'
-    precision = 'FP32'
+def predict(imgs_path):
+    model_path = 'final-resources/models/yolov8/best_float16.tflite'
+    precision = 'FP16'
     bb_conf = 0.5
-    imgs_path = 'final-resources/data/images'
     results_path = 'results/test'
     
 
@@ -316,7 +315,7 @@ def predict():
             # Store results in the all_detections dictionary
             final_detections[filename] = nms_filtered_dict
 
-            # Draw the final bounding boxes on the image
+            # # Draw the final bounding boxes on the image
             # final_img = draw_bounding_boxes_on_image(img, nms_filtered_dict)
 
             # # Save the final annotated image
@@ -399,16 +398,16 @@ def calculate_iou(box1, box2):
 
 
 
-def validate(detections):
+def validate(detections, labels_path, imgs_path, results_path, results_filename='results'):
     """
     Validate predictions against ground truth data from .txt files.
     """
-    labels_path = 'final-resources/data/labels'
-    imgs_path = 'final-resources/data/images'
+    
 
     data_df = []
 
     for img, _ in detections.items():
+        print(img)
         base_name = os.path.splitext(img)[0]
         txt_file_name = base_name + '.txt'
         txt_file_path = os.path.join(labels_path, txt_file_name)
@@ -427,14 +426,20 @@ def validate(detections):
                 
                 for gt_label in groundTruth:
                     for gt_coords in groundTruth[gt_label]:
-                        
                         # Recorro pred coords para comparar
-                        for pred_coords in detections[img][gt_label]:                            
-                            iou_score = calculate_iou(gt_coords, pred_coords[:4])
+                        try:
+                            for pred_coords in detections[img][gt_label]:
+                                iou_score = calculate_iou(gt_coords, pred_coords[:4])
+                                data_df.append([img,
+                                                gt_coords[0],  gt_coords[1], gt_coords[2], gt_coords[3],
+                                                pred_coords[0], pred_coords[1], pred_coords[2], pred_coords[3], pred_coords[4],
+                                                iou_score])
+                        except KeyError as e:
+                            print(f"Error: No se encontró la clave {e} en las detecciones.")
                             data_df.append([img,
                                             gt_coords[0],  gt_coords[1], gt_coords[2], gt_coords[3],
-                                            pred_coords[0], pred_coords[1], pred_coords[2], pred_coords[3], pred_coords[4],
-                                            iou_score])
+                                            None, None, None, None, None,
+                                            None])
 
 
             else:
@@ -443,15 +448,23 @@ def validate(detections):
             print(f"No se encontró la imagen {img}")
 
 
-        # Crear el DataFrame con las columnas especificadas
-        columns = ['image', 'gt_x1', 'gt_y1', 'gt_x2', 'gt_y2', 'pr_x1', 'pr_y1', 'pr_x2', 'pr_y2', 'pr_score', 'IoU']
-        df = pd.DataFrame(data_df, columns=columns)
-        df.to_csv('detections.csv', index=False)
+    # Crear el DataFrame con las columnas especificadas
+    columns = ['image', 'gt_x1', 'gt_y1', 'gt_x2', 'gt_y2', 'pr_x1', 'pr_y1', 'pr_x2', 'pr_y2', 'pr_score', 'IoU']
+    df = pd.DataFrame(data_df, columns=columns)
+    df.to_csv(os.path.join(results_path, results_filename+ '.csv'), index=False)
 
 
 if __name__ == "__main__":
     print('Predict')
-    detections = predict()
-    # print(detections)
+
+    imgs_path = 'datasets/bioview-lizards_TRAIN/dataset/validation/images'
+    detections = predict(imgs_path)
+
+
+
     print('Validate')
-    validate(detections)
+    
+    validate(detections,
+             labels_path = 'datasets/bioview-lizards_TRAIN/dataset/validation/labels',
+             imgs_path = imgs_path,
+             results_path='results/model-validation', results_filename='FP16')
