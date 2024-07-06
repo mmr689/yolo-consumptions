@@ -5,6 +5,7 @@ Código de detección sin control de parámetros cómo tiempo, cpu...
 import os  # OS operations
 import cv2  # Image processing
 import numpy as np  # Mathematical operations and multi-dimensional arrays
+import pandas as pd
 from tflite_runtime.interpreter import Interpreter  # Interpreter for TFLite models
 
 def preprocess_image(img, model_width, model_height, precision, convert_rgb=True):
@@ -324,58 +325,133 @@ def predict():
 
     return final_detections
 
-def txt_to_dict(filepath):
+def txt_to_dict(filepath, image_width, image_height):
     """
-    Read a .txt file containing object detections and convert it into a dictionary.
-    Each line in the file should contain: label, x, y, w, h.
+    Read a .txt file containing object detections and convert it into a dictionary,
+    converting normalized coordinates to pixel coordinates based on the image size.
 
     Args:
         filepath (str): The path to the .txt file.
+        image_width (int): Width of the image.
+        image_height (int): Height of the image.
 
     Returns:
-        dict: A dictionary with labels as keys and lists of coordinates as values.
+        dict: A dictionary with labels as keys and lists of coordinates in pixel values as values.
     """
     detections_dict = {}
     with open(filepath, 'r') as file:
         for line in file:
             parts = line.strip().split()
             if len(parts) == 5:
-                label = int(parts[0])  # Convert label to integer
-                coordinates = list(map(float, parts[1:]))  # Convert x, y, w, h to floats
-
+                label = int(parts[0])
+                x_center, y_center, width, height = map(float, parts[1:])
+                
+                # Convert normalized coordinates to pixel coordinates
+                x1 = int((x_center - width / 2) * image_width)
+                y1 = int((y_center - height / 2) * image_height)
+                x2 = int((x_center + width / 2) * image_width)
+                y2 = int((y_center + height / 2) * image_height)
+                
+                box = (x1, y1, x2, y2)
+                
                 if label in detections_dict:
-                    detections_dict[label].append(coordinates)
+                    detections_dict[label].append(box)
                 else:
-                    detections_dict[label] = [coordinates]
+                    detections_dict[label] = [box]
             else:
                 print("Warning: Line format incorrect ->", line)
 
     return detections_dict
 
+def calculate_iou(box1, box2):
+    """
+    Calculate the Intersection over Union (IoU) of two bounding boxes.
+
+    Args:
+        box1 (tuple): The bounding box in format (x1, y1, x2, y2).
+        box2 (tuple): The bounding box in format (x1, y1, x2, y2).
+
+    Returns:
+        float: The IoU value.
+    """
+    # Determine the (x, y)-coordinates of the intersection rectangle
+    x_left = max(box1[0], box2[0])
+    y_top = max(box1[1], box2[1])
+    x_right = min(box1[2], box2[2])
+    y_bottom = min(box1[3], box2[3])
+
+    if x_right < x_left or y_bottom < y_top:
+        return 0.0  # No overlap
+
+    # Compute the area of intersection rectangle
+    intersection_area = (x_right - x_left) * (y_bottom - y_top)
+
+    # Compute the area of both bounding boxes
+    box1_area = (box1[2] - box1[0]) * (box1[3] - box1[1])
+    box2_area = (box2[2] - box2[0]) * (box2[3] - box2[1])
+
+    # Compute the union area by using both areas minus the intersection area
+    union_area = box1_area + box2_area - intersection_area
+
+    # Compute the IoU
+    iou = intersection_area / union_area
+    return iou
+
+
 
 def validate(detections):
     """
-    por ahora leo predicciones y obtengo datos de la label gt.
+    Validate predictions against ground truth data from .txt files.
     """
     labels_path = 'final-resources/data/labels'
+    imgs_path = 'final-resources/data/images'
 
-    for img, value in detections.items():
+    data_df = []
+
+    for img, _ in detections.items():
         base_name = os.path.splitext(img)[0]
         txt_file_name = base_name + '.txt'
         txt_file_path = os.path.join(labels_path, txt_file_name)
-        if os.path.exists(txt_file_path):
-            print(f"El archivo .txt encontrado: {txt_file_path}")
-            # Aquí puedes abrir y leer el archivo, o lo que necesites hacer con él
-            detections_dict = txt_to_dict(txt_file_path)
-            print(detections_dict)
-        else:
-            print(f"No se encontró el archivo .txt para {img}")
-    
 
-    # for filename in os.listdir(imgs_path):
-    #     if filename.endswith(('.png', '.jpg', '.jpeg')):
+        image_path = os.path.join(imgs_path, img)
+        if os.path.exists(image_path):
+            # Obtain the dimensions of the image
+            image = cv2.imread(image_path)
+            image_height, image_width, _ = image.shape
+
+            if os.path.exists(txt_file_path):
+                # Convert ground truth data to pixel coordinates
+                groundTruth = txt_to_dict(txt_file_path, image_width, image_height)
+                
+
+                
+                for gt_label in groundTruth:
+                    for gt_coords in groundTruth[gt_label]:
+                        
+                        # Recorro pred coords para comparar
+                        for pred_coords in detections[img][gt_label]:                            
+                            iou_score = calculate_iou(gt_coords, pred_coords[:4])
+                            data_df.append([img,
+                                            gt_coords[0],  gt_coords[1], gt_coords[2], gt_coords[3],
+                                            pred_coords[0], pred_coords[1], pred_coords[2], pred_coords[3], pred_coords[4],
+                                            iou_score])
+
+
+            else:
+                print(f"No se encontró el archivo .txt para {img}")
+        else:
+            print(f"No se encontró la imagen {img}")
+
+
+        # Crear el DataFrame con las columnas especificadas
+        columns = ['image', 'gt_x1', 'gt_y1', 'gt_x2', 'gt_y2', 'pr_x1', 'pr_y1', 'pr_x2', 'pr_y2', 'pr_score', 'IoU']
+        df = pd.DataFrame(data_df, columns=columns)
+        df.to_csv('detections.csv', index=False)
+
 
 if __name__ == "__main__":
+    print('Predict')
     detections = predict()
     # print(detections)
+    print('Validate')
     validate(detections)
