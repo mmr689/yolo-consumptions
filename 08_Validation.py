@@ -281,10 +281,9 @@ class TFLiteModel:
         conf, label = np.max(confs), np.argmax(confs)
         return coords, conf, label
 
-def predict(imgs_path):
-    model_path = 'final-resources/models/yolov8/best_float16.tflite'
-    precision = 'FP16'
-    bb_conf = 0.5
+def predict(imgs_path, bb_conf = 0.5):
+    model_path = 'final-resources/models/yolov8/best_full_integer_quant.tflite'
+    precision = 'INT8'
     results_path = 'results/test'
     
 
@@ -467,4 +466,4 @@ if __name__ == "__main__":
     validate(detections,
              labels_path = 'datasets/bioview-lizards_TRAIN/dataset/validation/labels',
              imgs_path = imgs_path,
-             results_path='results/model-validation', results_filename='FP16')
+             results_path='results/model-validation', results_filename='INT8')
