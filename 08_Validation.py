@@ -189,7 +189,7 @@ def draw_bounding_boxes_on_image(img, bb_dict):
             # Draw rectangle on the image
             cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
             # Optionally add label and confidence score
-            cv2.putText(img, f"{conf:.2f}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            cv2.putText(img, f"{conf:.2f}", (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
     return img
 
 class TFLiteModel:
@@ -281,11 +281,7 @@ class TFLiteModel:
         conf, label = np.max(confs), np.argmax(confs)
         return coords, conf, label
 
-def predict(imgs_path, bb_conf = 0.5):
-    model_path = 'final-resources/models/yolov8/best_full_integer_quant.tflite'
-    precision = 'INT8'
-    results_path = 'results/test'
-    
+def predict(imgs_path, model_path, precision, bb_conf = 0.5, results_path = None): 
 
     model = TFLiteModel(model_path, precision)
     final_detections = {}  # Dictionary to hold all detections
@@ -314,156 +310,163 @@ def predict(imgs_path, bb_conf = 0.5):
             # Store results in the all_detections dictionary
             final_detections[filename] = nms_filtered_dict
 
-            # # Draw the final bounding boxes on the image
-            # final_img = draw_bounding_boxes_on_image(img, nms_filtered_dict)
+            if results_path is not None:
+                # Draw the final bounding boxes on the image
+                final_img = draw_bounding_boxes_on_image(img, nms_filtered_dict)
 
-            # # Save the final annotated image
-            # save_path = os.path.join(results_path, filename)
-            # cv2.imwrite(save_path, final_img)
+                # Save the final annotated image
+                save_path = os.path.join(results_path, filename)
+                cv2.imwrite(save_path, final_img)
 
     return final_detections
 
-def txt_to_dict(filepath, image_width, image_height):
-    """
-    Read a .txt file containing object detections and convert it into a dictionary,
-    converting normalized coordinates to pixel coordinates based on the image size.
+# def txt_to_dict(filepath, image_width, image_height):
+#     """
+#     Read a .txt file containing object detections and convert it into a dictionary,
+#     converting normalized coordinates to pixel coordinates based on the image size.
 
-    Args:
-        filepath (str): The path to the .txt file.
-        image_width (int): Width of the image.
-        image_height (int): Height of the image.
+#     Args:
+#         filepath (str): The path to the .txt file.
+#         image_width (int): Width of the image.
+#         image_height (int): Height of the image.
 
-    Returns:
-        dict: A dictionary with labels as keys and lists of coordinates in pixel values as values.
-    """
-    detections_dict = {}
-    with open(filepath, 'r') as file:
-        for line in file:
-            parts = line.strip().split()
-            if len(parts) == 5:
-                label = int(parts[0])
-                x_center, y_center, width, height = map(float, parts[1:])
+#     Returns:
+#         dict: A dictionary with labels as keys and lists of coordinates in pixel values as values.
+#     """
+#     detections_dict = {}
+#     with open(filepath, 'r') as file:
+#         for line in file:
+#             parts = line.strip().split()
+#             if len(parts) == 5:
+#                 label = int(parts[0])
+#                 x_center, y_center, width, height = map(float, parts[1:])
                 
-                # Convert normalized coordinates to pixel coordinates
-                x1 = int((x_center - width / 2) * image_width)
-                y1 = int((y_center - height / 2) * image_height)
-                x2 = int((x_center + width / 2) * image_width)
-                y2 = int((y_center + height / 2) * image_height)
+#                 # Convert normalized coordinates to pixel coordinates
+#                 x1 = int((x_center - width / 2) * image_width)
+#                 y1 = int((y_center - height / 2) * image_height)
+#                 x2 = int((x_center + width / 2) * image_width)
+#                 y2 = int((y_center + height / 2) * image_height)
                 
-                box = (x1, y1, x2, y2)
+#                 box = (x1, y1, x2, y2)
                 
-                if label in detections_dict:
-                    detections_dict[label].append(box)
-                else:
-                    detections_dict[label] = [box]
-            else:
-                print("Warning: Line format incorrect ->", line)
+#                 if label in detections_dict:
+#                     detections_dict[label].append(box)
+#                 else:
+#                     detections_dict[label] = [box]
+#             else:
+#                 print("Warning: Line format incorrect ->", line)
 
-    return detections_dict
+#     return detections_dict
 
-def calculate_iou(box1, box2):
-    """
-    Calculate the Intersection over Union (IoU) of two bounding boxes.
+# def calculate_iou(box1, box2):
+#     """
+#     Calculate the Intersection over Union (IoU) of two bounding boxes.
 
-    Args:
-        box1 (tuple): The bounding box in format (x1, y1, x2, y2).
-        box2 (tuple): The bounding box in format (x1, y1, x2, y2).
+#     Args:
+#         box1 (tuple): The bounding box in format (x1, y1, x2, y2).
+#         box2 (tuple): The bounding box in format (x1, y1, x2, y2).
 
-    Returns:
-        float: The IoU value.
-    """
-    # Determine the (x, y)-coordinates of the intersection rectangle
-    x_left = max(box1[0], box2[0])
-    y_top = max(box1[1], box2[1])
-    x_right = min(box1[2], box2[2])
-    y_bottom = min(box1[3], box2[3])
+#     Returns:
+#         float: The IoU value.
+#     """
+#     # Determine the (x, y)-coordinates of the intersection rectangle
+#     x_left = max(box1[0], box2[0])
+#     y_top = max(box1[1], box2[1])
+#     x_right = min(box1[2], box2[2])
+#     y_bottom = min(box1[3], box2[3])
 
-    if x_right < x_left or y_bottom < y_top:
-        return 0.0  # No overlap
+#     if x_right < x_left or y_bottom < y_top:
+#         return 0.0  # No overlap
 
-    # Compute the area of intersection rectangle
-    intersection_area = (x_right - x_left) * (y_bottom - y_top)
+#     # Compute the area of intersection rectangle
+#     intersection_area = (x_right - x_left) * (y_bottom - y_top)
 
-    # Compute the area of both bounding boxes
-    box1_area = (box1[2] - box1[0]) * (box1[3] - box1[1])
-    box2_area = (box2[2] - box2[0]) * (box2[3] - box2[1])
+#     # Compute the area of both bounding boxes
+#     box1_area = (box1[2] - box1[0]) * (box1[3] - box1[1])
+#     box2_area = (box2[2] - box2[0]) * (box2[3] - box2[1])
 
-    # Compute the union area by using both areas minus the intersection area
-    union_area = box1_area + box2_area - intersection_area
+#     # Compute the union area by using both areas minus the intersection area
+#     union_area = box1_area + box2_area - intersection_area
 
-    # Compute the IoU
-    iou = intersection_area / union_area
-    return iou
+#     # Compute the IoU
+#     iou = intersection_area / union_area
+#     return iou
 
 
 
-def validate(detections, labels_path, imgs_path, results_path, results_filename='results'):
-    """
-    Validate predictions against ground truth data from .txt files.
-    """
+# def validate(detections, labels_path, imgs_path, results_path, results_filename='results'):
+#     """
+#     Validate predictions against ground truth data from .txt files.
+#     """
     
 
-    data_df = []
+#     data_df = []
 
-    for img, _ in detections.items():
-        print(img)
-        base_name = os.path.splitext(img)[0]
-        txt_file_name = base_name + '.txt'
-        txt_file_path = os.path.join(labels_path, txt_file_name)
+#     for img, _ in detections.items():
+#         print(img)
+#         base_name = os.path.splitext(img)[0]
+#         txt_file_name = base_name + '.txt'
+#         txt_file_path = os.path.join(labels_path, txt_file_name)
 
-        image_path = os.path.join(imgs_path, img)
-        if os.path.exists(image_path):
-            # Obtain the dimensions of the image
-            image = cv2.imread(image_path)
-            image_height, image_width, _ = image.shape
+#         image_path = os.path.join(imgs_path, img)
+#         if os.path.exists(image_path):
+#             # Obtain the dimensions of the image
+#             image = cv2.imread(image_path)
+#             image_height, image_width, _ = image.shape
 
-            if os.path.exists(txt_file_path):
-                # Convert ground truth data to pixel coordinates
-                groundTruth = txt_to_dict(txt_file_path, image_width, image_height)
+#             if os.path.exists(txt_file_path):
+#                 # Convert ground truth data to pixel coordinates
+#                 groundTruth = txt_to_dict(txt_file_path, image_width, image_height)
                 
 
                 
-                for gt_label in groundTruth:
-                    for gt_coords in groundTruth[gt_label]:
-                        # Recorro pred coords para comparar
-                        try:
-                            for pred_coords in detections[img][gt_label]:
-                                iou_score = calculate_iou(gt_coords, pred_coords[:4])
-                                data_df.append([img,
-                                                gt_coords[0],  gt_coords[1], gt_coords[2], gt_coords[3],
-                                                pred_coords[0], pred_coords[1], pred_coords[2], pred_coords[3], pred_coords[4],
-                                                iou_score])
-                        except KeyError as e:
-                            print(f"Error: No se encontró la clave {e} en las detecciones.")
-                            data_df.append([img,
-                                            gt_coords[0],  gt_coords[1], gt_coords[2], gt_coords[3],
-                                            None, None, None, None, None,
-                                            None])
+#                 for gt_label in groundTruth:
+#                     for gt_coords in groundTruth[gt_label]:
+#                         # Recorro pred coords para comparar
+#                         try:
+#                             for pred_coords in detections[img][gt_label]:
+#                                 iou_score = calculate_iou(gt_coords, pred_coords[:4])
+#                                 data_df.append([img,
+#                                                 gt_coords[0],  gt_coords[1], gt_coords[2], gt_coords[3],
+#                                                 pred_coords[0], pred_coords[1], pred_coords[2], pred_coords[3], pred_coords[4],
+#                                                 iou_score])
+#                         except KeyError as e:
+#                             print(f"Error: No se encontró la clave {e} en las detecciones.")
+#                             data_df.append([img,
+#                                             gt_coords[0],  gt_coords[1], gt_coords[2], gt_coords[3],
+#                                             None, None, None, None, None,
+#                                             None])
 
 
-            else:
-                print(f"No se encontró el archivo .txt para {img}")
-        else:
-            print(f"No se encontró la imagen {img}")
+#             else:
+#                 print(f"No se encontró el archivo .txt para {img}")
+#         else:
+#             print(f"No se encontró la imagen {img}")
 
 
-    # Crear el DataFrame con las columnas especificadas
-    columns = ['image', 'gt_x1', 'gt_y1', 'gt_x2', 'gt_y2', 'pr_x1', 'pr_y1', 'pr_x2', 'pr_y2', 'pr_score', 'IoU']
-    df = pd.DataFrame(data_df, columns=columns)
-    df.to_csv(os.path.join(results_path, results_filename+ '.csv'), index=False)
+#     # Crear el DataFrame con las columnas especificadas
+#     columns = ['image', 'gt_x1', 'gt_y1', 'gt_x2', 'gt_y2', 'pr_x1', 'pr_y1', 'pr_x2', 'pr_y2', 'pr_score', 'IoU']
+#     df = pd.DataFrame(data_df, columns=columns)
+#     df.to_csv(os.path.join(results_path, results_filename+ '.csv'), index=False)
 
 
 if __name__ == "__main__":
     print('Predict')
 
-    imgs_path = 'datasets/bioview-lizards_TRAIN/dataset/validation/images'
-    detections = predict(imgs_path)
+    imgs_path = 'final-resources/data/images'
+    model_path = 'datasets/bioview-lizards_TRAIN/run/train/weights/best_saved_model/best_int8.tflite'
+    precision = 'FP32'
+    results_path = f'results/{precision}'
+
+    detections = predict(imgs_path, model_path, precision, results_path=results_path)
 
 
 
-    print('Validate')
+    # print('Validate')
     
-    validate(detections,
-             labels_path = 'datasets/bioview-lizards_TRAIN/dataset/validation/labels',
-             imgs_path = imgs_path,
-             results_path='results/model-validation', results_filename='INT8')
+    # validate(detections,
+    #          labels_path = 'datasets/bioview-lizards_TRAIN/dataset/validation/labels',
+    #          imgs_path = imgs_path,
+    #          results_path='results/model-validation', results_filename='INT8')
+
+    print('E N D')

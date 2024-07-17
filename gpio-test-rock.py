@@ -3,8 +3,9 @@ from periphery import GPIO
 import time
 
 # Configurar el GPIO para salida
-# Reemplaza 'X' con el número de 'chip' y 'Y' con el número de línea basado en tu selección
-gpio = GPIO("/dev/gpiochip3", 15, "out")
+chip = 3
+gpio = 15
+gpio = GPIO(f"/dev/gpiochip{chip}", gpio, "out")
 
 try:
     # Poner el GPIO a alto (1)

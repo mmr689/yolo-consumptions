@@ -8,6 +8,9 @@
 __pycache__/
 
 datasets/
+runs/
+
+output2.log
 
 yolov8n.pt
 private_data.py
